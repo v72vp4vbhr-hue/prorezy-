@@ -29,6 +29,7 @@
         .card-header { color:#fff; font-size:15px; font-weight:600; margin-bottom:4px; }
         .info-line { font-size:12px; color:#aaa; margin-bottom:4px; line-height:1.4; }
         .green { color:#5c5; }
+        .blue { color:#8af; }
         .cuts-row { display:flex; justify-content:space-between; padding:2px 0; font-size:13px; color:#ccc; }
         .cuts-row .val { color:#5c5; font-weight:600; font-size:15px; }
         .summary { background:#444; border-radius:8px; padding:14px 16px; margin-top:12px; }
@@ -45,11 +46,12 @@
 <h1>📐 Расчёт прорезов</h1>
 <div class="info"><b>Рейка:</b> 270 см | <b>Загрузка:</b> 26 шт. | <b>Деталей на подрамник:</b> 4</div>
 <label>Введите заказ:</label>
-<textarea id="inputData" placeholder="30x50 — 100
-20x30 — 350"></textarea>
+<textarea id="inputData" placeholder="40x50 — 100
+30x40 — 200
+50x70 — 80"></textarea>
 <div class="hint">Формат: <b>Ширина x Высота — Количество подрамников</b></div>
 <div class="btn-row">
-<button class="btn btn-calculate" onclick="calculate()">Рассчитать</button>
+<button class="btn btn-calculate" onclick="calc()">Рассчитать</button>
 <button class="btn btn-clear" onclick="clearInput()">Очистить</button>
 </div>
 <div class="error" id="error"></div>
@@ -73,7 +75,7 @@ function parseInput(text) {
     return items;
 }
 
-function calculate() {
+function calc() {
     var input = document.getElementById('inputData').value.trim();
     var errEl = document.getElementById('error');
     var resEl = document.getElementById('results');
@@ -83,7 +85,7 @@ function calculate() {
     var items = parseInput(input);
     if (!items.length) { errEl.textContent = 'Неверный формат'; errEl.classList.add('show'); return; }
 
-    // Собираем все детали в один список
+    // Собираем все детали
     var allParts = [];
     for (var i = 0; i < items.length; i++) {
         for (var j = 0; j < items[i].q; j++) {
@@ -94,10 +96,10 @@ function calculate() {
         }
     }
 
-    // Сортируем по убыванию
+    // Сортируем от больших к меньшим
     allParts.sort(function(a, b) { return b - a; });
 
-    // Жадно укладываем в рейки
+    // Жадный раскрой
     var reiki = 0;
     var remaining = allParts.slice();
 
@@ -119,37 +121,23 @@ function calculate() {
 
     // Вывод
     var html = '';
-    var totalAll = 0;
-
     for (var i = 0; i < items.length; i++) {
         var w = items[i].w, h = items[i].h, q = items[i].q;
-        var needW = q * 2, needH = q * 2;
-        
-        // Сколько деталей влезает на рейку
         var perW = Math.floor(REIKA / w);
         var perH = Math.floor(REIKA / h);
-        
-        // Сколько реек нужно, если резать отдельно
-        var reikiW = Math.ceil(needW / perW);
-        var reikiH = Math.ceil(needH / perH);
-        var cutsW = Math.ceil(reikiW / LOAD);
-        var cutsH = Math.ceil(reikiH / LOAD);
-        var sum = cutsW + cutsH;
-        totalAll += sum;
+        var needW = q * 2, needH = q * 2;
 
         html += '<div class="size-card">' +
             '<div class="card-header">📏 ' + w + '×' + h + ' — ' + q + ' шт.</div>' +
             '<div class="info-line">С рейки: <span class="green">' + perW + '×' + w + 'см</span> | <span class="green">' + perH + '×' + h + 'см</span></div>' +
-            '<div class="cuts-row"><span>🔪 Прорезов в ' + w + '</span><span class="val">' + cutsW + ' шт.</span></div>' +
-            '<div class="cuts-row"><span>🔪 Прорезов в ' + h + '</span><span class="val">' + cutsH + ' шт.</span></div>' +
-            '<div class="cuts-row" style="border-top:1px solid #555;padding-top:4px;margin-top:4px;"><span style="color:#fff;">Итого</span><span class="val">' + sum + ' шт.</span></div>' +
+            '<div class="info-line">Нужно: ' + w + '×' + needW + ' | ' + h + '×' + needH + '</div>' +
+            '<div class="cuts-row" style="border-top:1px solid #555;padding-top:4px;margin-top:4px;"><span style="color:#8af;">♻ Остатки идут в дело</span></div>' +
             '</div>';
     }
 
     html += '<div class="summary">' +
-        '<div class="summary-row"><span>🔪 Всего прорезов (без оптимизации):</span><span class="val">' + totalAll + ' шт.</span></div>' +
-        '<div class="summary-row" style="margin-top:8px;"><span>🔪 Всего прорезов (с оптимизацией):</span><span class="val">' + totalCuts + ' шт.</span></div>' +
-        '<div class="summary-row" style="font-size:11px;color:#888;margin-top:4px;"><span>Экономия: ' + (totalAll - totalCuts) + ' прорезов</span></div>' +
+        '<div class="summary-row"><span>🔪 Всего прорезов (все детали вместе):</span><span class="val">' + totalCuts + ' шт.</span></div>' +
+        '<div class="summary-row" style="font-size:11px;color:#888;margin-top:4px;"><span>Остатки реек использованы для других размеров в этом же заказе</span></div>' +
         '</div>';
 
     resEl.innerHTML = html;
