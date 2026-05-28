@@ -23,34 +23,13 @@
             max-width: 650px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.4);
         }
-        h1 {
-            color: #e0e0e0;
-            text-align: center;
-            margin-bottom: 14px;
-            font-size: 20px;
-            font-weight: 500;
-        }
-        .info {
-            background: #333;
-            border-radius: 8px;
-            padding: 10px 14px;
-            margin-bottom: 14px;
-            font-size: 13px;
-            color: #aaa;
-            line-height: 1.5;
-        }
+        h1 { color: #e0e0e0; text-align: center; margin-bottom: 14px; font-size: 20px; }
+        .info { background: #333; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; font-size: 13px; color: #aaa; }
         .info b { color: #ddd; }
         .stock-panel {
-            background: #2a3a2a;
-            border: 1px solid #3a5a3a;
-            border-radius: 8px;
-            padding: 12px 14px;
-            margin-bottom: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
+            background: #2a3a2a; border: 1px solid #3a5a3a; border-radius: 8px;
+            padding: 12px 14px; margin-bottom: 14px;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
         }
         .stock-title { color: #8b8; font-size: 13px; font-weight: 600; }
         .stock-list { color: #ccc; font-size: 13px; flex: 1; min-width: 200px; }
@@ -63,244 +42,180 @@
             width: 100%; height: 140px;
             background: #4a4a4a; border: 1px solid #555; border-radius: 8px;
             color: #fff; font-size: 14px; padding: 12px; outline: none; resize: vertical;
-            font-family: 'SF Mono', 'Menlo', 'Courier New', monospace; line-height: 1.6;
+            font-family: 'SF Mono', monospace; line-height: 1.6;
         }
-        textarea:focus { border-color: #888; }
-        .hint { color: #888; font-size: 11px; margin-top: 4px; line-height: 1.4; }
+        .hint { color: #888; font-size: 11px; margin-top: 4px; }
         .btn-row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
         .btn {
-            flex: 1; min-width: 100px; padding: 12px;
-            border: none; border-radius: 8px; font-size: 14px; font-weight: 500;
-            cursor: pointer;
+            flex: 1; min-width: 100px; padding: 12px; border: none; border-radius: 8px;
+            font-size: 14px; font-weight: 500; cursor: pointer;
         }
         .btn-calculate { background: #5a8; color: #fff; }
         .btn-clear { background: #555; color: #ccc; }
-        .btn-share {
-            background: #48a; color: #fff;
-            flex: 0.5; min-width: 60px;
-            font-size: 18px;
-        }
+        .btn-share { background: #48a; color: #fff; flex: 0.5; min-width: 60px; font-size: 18px; }
         .results { margin-top: 16px; display: none; }
         .results.show { display: block; }
-        .section-title {
-            color: #ccc; font-size: 14px; font-weight: 600;
-            margin: 12px 0 6px 0; padding-bottom: 4px; border-bottom: 1px solid #555;
-        }
         .size-block {
-            background: #333; border-radius: 8px; padding: 12px 14px;
-            margin-bottom: 10px;
+            background: #333; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px;
         }
-        .size-block .size-header {
-            color: #fff; font-size: 15px; font-weight: 600; margin-bottom: 6px;
-        }
-        .size-block .size-row {
-            display: flex; justify-content: space-between;
-            color: #ccc; font-size: 13px; padding: 2px 0;
-        }
+        .size-block .size-header { color: #fff; font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+        .size-block .size-row { display: flex; justify-content: space-between; color: #ccc; font-size: 13px; padding: 2px 0; }
         .size-block .size-row .val { color: #5c5; font-weight: 600; }
-        .summary {
-            background: #444; border-radius: 8px; padding: 14px 16px;
-            margin-top: 12px;
-        }
-        .summary-row {
-            display: flex; justify-content: space-between;
-            padding: 3px 0; color: #ddd; font-size: 14px;
-        }
+        .summary { background: #444; border-radius: 8px; padding: 14px 16px; margin-top: 12px; }
+        .summary-row { display: flex; justify-content: space-between; padding: 3px 0; color: #ddd; font-size: 14px; }
         .summary-row .val { color: #fff; font-weight: 700; font-size: 16px; }
         .error { color: #e88; text-align: center; margin-top: 12px; display: none; font-size: 13px; }
         .error.show { display: block; }
-        textarea::-webkit-scrollbar { width: 6px; }
-        textarea::-webkit-scrollbar-track { background: #4a4a4a; border-radius: 3px; }
-        textarea::-webkit-scrollbar-thumb { background: #777; border-radius: 3px; }
     </style>
 </head>
 <body>
 <div class="app">
     <h1>📐 Расчёт прорезов</h1>
-    <div class="info">
-        <b>Длина:</b> 270 см &nbsp;|&nbsp; <b>Загрузка:</b> 26 шт. &nbsp;|&nbsp; <b>Деталей на подрамник:</b> 4
-    </div>
+    <div class="info"><b>Длина:</b> 270 см | <b>Загрузка:</b> 26 шт. | <b>Деталей:</b> 4</div>
     <div class="stock-panel">
-        <span class="stock-title">📦 Склад остатков:</span>
+        <span class="stock-title">📦 Склад:</span>
         <span class="stock-list" id="stockList">пусто</span>
         <button class="btn-clear-stock" onclick="clearStock()">Очистить</button>
     </div>
     <label>Введите заказ:</label>
-    <textarea id="inputData" placeholder="40x50 — 100
-30x40 — 200
-50x70 — 80"></textarea>
-    <div class="hint">Формат: <b>Ширина x Высота — Количество подрамников</b></div>
+    <textarea id="inputData" placeholder="30x50 — 100
+20x30 — 350"></textarea>
+    <div class="hint">Формат: <b>Ширина x Высота — Количество</b></div>
     <div class="btn-row">
-        <button class="btn btn-calculate" onclick="calculate()">Рассчитать</button>
+        <button class="btn btn-calculate" onclick="calc()">Рассчитать</button>
         <button class="btn btn-clear" onclick="clearInput()">Очистить</button>
-        <button class="btn btn-share" onclick="shareResult()" title="Поделиться">📤</button>
+        <button class="btn btn-share" onclick="shareResult()">📤</button>
     </div>
     <div class="error" id="error"></div>
     <div class="results" id="results"></div>
 </div>
 <script>
-const LOAD = 26;
-let stock = {};
-let lastResultText = '';
-
-function getReikaLength() {
-    return 270;
-}
+var LOAD = 26;
+var REIKA = 270;
+var stock = {};
+var lastText = '';
 
 function loadStock() {
-    const s = localStorage.getItem('pod_stock_final');
-    if (s) { try { stock = JSON.parse(s); } catch(e) { stock = {}; } }
+    try { stock = JSON.parse(localStorage.getItem('pod_v12')) || {}; } catch(e) { stock = {}; }
     renderStock();
 }
 function saveStock() {
-    localStorage.setItem('pod_stock_final', JSON.stringify(stock));
+    localStorage.setItem('pod_v12', JSON.stringify(stock));
     renderStock();
 }
 function renderStock() {
-    const list = document.getElementById('stockList');
-    const e = Object.entries(stock).filter(([_,q]) => q > 0);
-    if (!e.length) { list.textContent = 'пусто'; return; }
-    e.sort((a,b) => parseInt(a[0]) - parseInt(b[0]));
-    list.textContent = e.map(([l,q]) => `${l} см × ${q}`).join(', ');
+    var list = document.getElementById('stockList');
+    var arr = [];
+    for (var k in stock) { if (stock[k] > 0) arr.push([+k, stock[k]]); }
+    list.textContent = arr.length ? arr.sort(function(a,b){return a[0]-b[0]}).map(function(e){return e[0]+'см ×'+e[1]}).join(', ') : 'пусто';
 }
-function clearStock() {
-    if (confirm('Очистить склад?')) { stock = {}; saveStock(); }
-}
-function takeFromStock(len) {
-    const k = String(len);
-    if (stock[k] && stock[k] > 0) { stock[k]--; saveStock(); return true; }
-    return false;
-}
-function addToStock(len) {
-    if (len > 0 && (len < 9 || (len >= 30 && len <= 33))) {
-        const k = String(len);
-        stock[k] = (stock[k] || 0) + 1;
-        saveStock();
-    }
-}
+function clearStock() { if (confirm('Очистить?')) { stock = {}; saveStock(); } }
 
 function parseInput(text) {
-    const lines = text.split('\n').filter(l => l.trim());
-    const items = [];
-    for (const l of lines) {
-        const m = l.match(/(\d+)\s*[xх×]\s*(\d+)\s*[-—–]\s*(\d+)/i);
-        if (m) {
-            const w = parseInt(m[1]), h = parseInt(m[2]), q = parseInt(m[3]);
-            if (w>0 && h>0 && q>0) items.push({width:w, height:h, quantity:q});
-        }
-    }
+    var items = [];
+    text.split('\n').forEach(function(l) {
+        var m = l.match(/(\d+)\s*[xх×]\s*(\d+)\s*[-—–]\s*(\d+)/i);
+        if (m) { var w=+m[1], h=+m[2], q=+m[3]; if (w&&h&&q) items.push({w:w, h:h, q:q}); }
+    });
     return items;
 }
 
-function calculate() {
-    const input = document.getElementById('inputData').value.trim();
-    const errDiv = document.getElementById('error');
-    const resDiv = document.getElementById('results');
-    errDiv.classList.remove('show');
-    resDiv.classList.remove('show');
+function calc() {
+    var input = document.getElementById('inputData').value.trim();
+    var errEl = document.getElementById('error');
+    var resEl = document.getElementById('results');
+    errEl.classList.remove('show');
+    resEl.classList.remove('show');
+    if (!input) { errEl.textContent = 'Введите заказ'; errEl.classList.add('show'); return; }
+    var items = parseInput(input);
+    if (!items.length) { errEl.textContent = 'Неверный формат'; errEl.classList.add('show'); return; }
 
-    if (!input) { errDiv.textContent = 'Введите размеры'; errDiv.classList.add('show'); return; }
-    const items = parseInput(input);
-    if (!items.length) { errDiv.textContent = 'Неверный формат. Пример: 40x50 — 100'; errDiv.classList.add('show'); return; }
-
-    const reikaLen = getReikaLength();
-    let html = '';
-    let totalCuts = 0;
-    let textResult = `📐 Расчёт прорезов\nДлина рейки: ${reikaLen} см | Загрузка: ${LOAD} шт.\n\n`;
-
-    for (const item of items) {
-        let partsW = [], partsH = [];
-        for (let i = 0; i < item.quantity; i++) {
-            partsW.push(item.width); partsW.push(item.width);
-            partsH.push(item.height); partsH.push(item.height);
-        }
-
-        const cutW = cutReika(partsW, reikaLen);
-        const cutsW = Math.ceil(cutW.used / LOAD);
-        const cutH = cutReika(partsH, reikaLen);
-        const cutsH = Math.ceil(cutH.used / LOAD);
-        const sizeCuts = cutsW + cutsH;
-        totalCuts += sizeCuts;
-
-        html += `
-        <div class="size-block">
-            <div class="size-header">📏 ${item.width}×${item.height} — ${item.quantity} шт.</div>
-            <div class="size-row"><span>Прорезов в ${item.width}</span><span class="val">${cutsW} шт.</span></div>
-            <div class="size-row"><span>Прорезов в ${item.height}</span><span class="val">${cutsH} шт.</span></div>
-            <div class="size-row" style="border-top:1px solid #555; margin-top:4px; padding-top:4px;">
-                <span style="color:#fff;">Итого прорезов</span>
-                <span class="val" style="font-size:15px;">${sizeCuts} шт.</span>
-            </div>
-        </div>`;
-
-        textResult += `${item.width}×${item.height} — ${item.quantity} шт.\n`;
-        textResult += `  Прорезов в ${item.width}: ${cutsW} шт.\n`;
-        textResult += `  Прорезов в ${item.height}: ${cutsH} шт.\n`;
-        textResult += `  Итого: ${sizeCuts} шт.\n\n`;
+    // Собираем потребности
+    var need = {};
+    for (var i = 0; i < items.length; i++) {
+        need[items[i].w] = (need[items[i].w] || 0) + items[i].q * 2;
+        need[items[i].h] = (need[items[i].h] || 0) + items[i].q * 2;
     }
 
-    html += `
-    <div class="summary">
-        <div class="summary-row">
-            <span>🔪 Всего прорезов на заказ:</span>
-            <span class="val">${totalCuts} шт.</span>
-        </div>
-    </div>`;
+    // Копия склада
+    var st = {};
+    for (var k in stock) st[k] = stock[k];
 
-    textResult += `🔪 Всего прорезов: ${totalCuts} шт.`;
-    const stockEntries = Object.entries(stock).filter(([_,q]) => q > 0);
-    if (stockEntries.length > 0) {
-        stockEntries.sort((a,b) => parseInt(a[0]) - parseInt(b[0]));
-        textResult += `\n\n📦 Склад: ` + stockEntries.map(([l,q]) => `${l} см × ${q}`).join(', ');
+    // Берём со склада
+    for (var k in st) {
+        var sz = +k;
+        while (need[sz] > 0 && st[k] > 0) { need[sz]--; st[k]--; }
     }
 
-    resDiv.innerHTML = html;
-    resDiv.classList.add('show');
-    lastResultText = textResult;
-}
+    var sizes = Object.keys(need).map(Number).sort(function(a,b){return b-a});
+    var cuts = {};
+    var left = [];
 
-function cutReika(partsNeeded, reikaLen) {
-    let remaining = [...partsNeeded].sort((a,b) => b-a);
-    let used = 0;
-    let stillNeed = [];
-    for (const p of remaining) {
-        if (takeFromStock(p)) { /* взяли */ }
-        else { stillNeed.push(p); }
-    }
-    remaining = stillNeed;
-    while (remaining.length > 0) {
-        used++;
-        let space = reikaLen;
-        for (let i = 0; i < remaining.length; i++) {
-            if (remaining[i] <= space) {
-                space -= remaining[i];
-                remaining.splice(i,1);
-                i--;
+    for (var s = 0; s < sizes.length; s++) {
+        var sz = sizes[s];
+        var n = need[sz] || 0;
+        if (n <= 0) { cuts[sz] = 0; continue; }
+
+        // Используем остатки
+        for (var i = 0; i < left.length && n > 0; i++) {
+            if (left[i] >= sz) {
+                var can = Math.floor(left[i] / sz);
+                var take = Math.min(can, n);
+                n -= take;
+                left[i] -= take * sz;
             }
         }
-        addToStock(space);
+        left = left.filter(function(x){return x > 0});
+
+        if (n <= 0) { cuts[sz] = 0; continue; }
+
+        var per = Math.floor(REIKA / sz);
+        var reiki = Math.ceil(n / per);
+        cuts[sz] = Math.ceil(reiki / LOAD);
+        var rest = REIKA - per * sz;
+        for (var r = 0; r < reiki; r++) { if (rest > 0) left.push(rest); }
     }
-    return { used };
+
+    // Сохраняем склад
+    stock = st;
+    for (var i = 0; i < left.length; i++) {
+        if (left[i] > 0 && (left[i] < 9 || (left[i] >= 30 && left[i] <= 33))) {
+            stock[left[i]] = (stock[left[i]] || 0) + 1;
+        }
+    }
+    saveStock();
+
+    // Вывод
+    var html = '', total = 0;
+    var textOut = '📐 Расчёт прорезов\nРейка: '+REIKA+' см | Загрузка: '+LOAD+'\n\n';
+
+    for (var i = 0; i < items.length; i++) {
+        var w = items[i].w, h = items[i].h, q = items[i].q;
+        var cw = cuts[w] || 0, ch = cuts[h] || 0, sum = cw + ch;
+        total += sum;
+        html += '<div class="size-block"><div class="size-header">📏 '+w+'×'+h+' — '+q+' шт.</div>';
+        html += '<div class="size-row"><span>Прорезов в '+w+'</span><span class="val">'+cw+' шт.</span></div>';
+        html += '<div class="size-row"><span>Прорезов в '+h+'</span><span class="val">'+ch+' шт.</span></div>';
+        html += '<div class="size-row" style="border-top:1px solid #555;padding-top:4px;margin-top:4px;"><span style="color:#fff;">Итого</span><span class="val">'+sum+' шт.</span></div></div>';
+        textOut += w+'×'+h+' — '+q+' шт.\n  Прорезов: '+cw+' + '+ch+' = '+sum+'\n\n';
+    }
+    html += '<div class="summary"><div class="summary-row"><span>🔪 Всего прорезов:</span><span class="val">'+total+' шт.</span></div></div>';
+    textOut += '🔪 Всего: '+total+' шт.';
+
+    resEl.innerHTML = html;
+    resEl.classList.add('show');
+    lastText = textOut;
 }
 
 function shareResult() {
-    if (!lastResultText) { alert('Сначала нажмите «Рассчитать»'); return; }
-    if (navigator.share) {
-        navigator.share({ text: lastResultText }).catch(() => {});
-    } else {
-        navigator.clipboard.writeText(lastResultText).then(() => {
-            alert('Результат скопирован!');
-        }).catch(() => {
-            alert('Не поддерживается.');
-        });
-    }
+    if (!lastText) { alert('Нажмите Рассчитать'); return; }
+    if (navigator.share) navigator.share({text:lastText});
+    else alert(lastText);
 }
-
 function clearInput() {
     document.getElementById('inputData').value = '';
     document.getElementById('results').classList.remove('show');
     document.getElementById('error').classList.remove('show');
-    lastResultText = '';
 }
 loadStock();
 </script>
