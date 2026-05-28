@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Расчёт прорезов</title>
 
     <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D0%A0%D0%B0%D1%81%D1%87%D1%91%D1%82%20%D0%BF%D1%80%D0%BE%D1%80%D0%B5%D0%B7%D0%BE%D0%B2%22%2C%22short_name%22%3A%22%D0%9F%D1%80%D0%BE%D1%80%D0%B5%D0%B7%D1%8B%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%232c2c2c%22%2C%22theme_color%22%3A%22%233a3a3a%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20100%20100'%3E%253Crect%20width%3D'100'%20height%3D'100'%20rx%3D'20'%20fill%3D'%233a3a3a'%2F%3E%253Ctext%20x%3D'50'%20y%3D'68'%20font-size%3D'55'%20text-anchor%3D'middle'%20fill%3D'%235a8'%3E%25E2%259C%2582%253C%2Ftext%3E%253C%2Fsvg%3E%22%2C%22sizes%22%3A%22100x100%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
@@ -14,102 +14,65 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body {
-            height: 100%;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100%; width: 100%; overflow: hidden;
             background: #2c2c2c;
-            min-height: 100vh;
-            min-height: -webkit-fill-available;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none; user-select: none;
+        }
+        .scroll-container {
+            height: 100%; width: 100%;
+            overflow-y: scroll; -webkit-overflow-scrolling: touch;
             padding: 16px;
+            display: flex; justify-content: center; align-items: flex-start;
         }
         .app {
-            background: #3a3a3a;
-            border-radius: 12px;
-            padding: 20px;
-            width: 100%;
-            max-width: 650px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            background: #3a3a3a; border-radius: 12px; padding: 20px;
+            width: 100%; max-width: 650px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4); margin-bottom: 40px;
         }
-        h1 {
-            color: #e0e0e0;
-            text-align: center;
-            margin-bottom: 14px;
-            font-size: 20px;
-            font-weight: 500;
-        }
+        h1 { color: #e0e0e0; text-align: center; margin-bottom: 14px; font-size: 20px; font-weight: 500; }
         .settings {
-            background: #333;
-            border-radius: 8px;
-            padding: 10px 14px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
+            background: #333; border-radius: 8px; padding: 10px 14px;
+            margin-bottom: 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
         }
-        .settings label { color: #aaa; font-size: 13px; white-space: nowrap; }
+        .settings label { color: #aaa; font-size: 13px; }
         .settings input {
-            width: 70px; padding: 6px 8px;
-            background: #4a4a4a; border: 1px solid #555;
-            border-radius: 6px; color: #fff; font-size: 14px;
-            text-align: center; outline: none;
+            width: 70px; padding: 6px 8px; background: #4a4a4a; border: 1px solid #555;
+            border-radius: 6px; color: #fff; font-size: 14px; text-align: center; outline: none;
         }
-        .settings input:focus { border-color: #888; }
         .settings .fixed { color: #888; font-size: 13px; }
-        .stock-panel {
-            background: #2a3a2a; border: 1px solid #3a5a3a;
-            border-radius: 8px; padding: 10px 14px; margin-bottom: 12px;
-            display: flex; justify-content: space-between; align-items: center;
-            flex-wrap: wrap; gap: 8px;
-        }
-        .stock-title { color: #8b8; font-size: 13px; font-weight: 600; }
-        .stock-list { color: #ccc; font-size: 13px; flex: 1; min-width: 180px; }
-        .btn-clear-stock {
-            background: #833; color: #fcc; border: none;
-            padding: 8px 14px; border-radius: 6px; font-size: 13px; cursor: pointer;
-        }
         label { display: block; color: #b0b0b0; margin-bottom: 6px; font-size: 14px; }
         textarea {
-            width: 100%; height: 140px;
-            background: #4a4a4a; border: 1px solid #555; border-radius: 8px;
-            color: #fff; font-size: 14px; padding: 12px; outline: none; resize: vertical;
-            font-family: 'SF Mono', 'Menlo', 'Courier New', monospace; line-height: 1.6;
+            width: 100%; height: 140px; background: #4a4a4a; border: 1px solid #555;
+            border-radius: 8px; color: #fff; font-size: 14px; padding: 12px; outline: none;
+            resize: vertical; font-family: 'SF Mono', 'Menlo', 'Courier New', monospace; line-height: 1.6;
         }
-        textarea:focus { border-color: #888; }
-        .hint { color: #888; font-size: 11px; margin-top: 4px; line-height: 1.4; }
+        .hint { color: #888; font-size: 11px; margin-top: 4px; }
         .btn-row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
         .btn {
-            flex: 1; min-width: 80px; padding: 12px;
-            border: none; border-radius: 8px; font-size: 14px; font-weight: 500;
-            cursor: pointer;
+            flex: 1; min-width: 80px; padding: 12px; border: none; border-radius: 8px;
+            font-size: 14px; font-weight: 500; cursor: pointer;
         }
         .btn-calculate { background: #5a8; color: #fff; }
         .btn-clear { background: #555; color: #ccc; }
         .btn-share { background: #48a; color: #fff; flex: 0.5; min-width: 60px; font-size: 18px; }
         .results { margin-top: 16px; display: none; }
         .results.show { display: block; }
-        .size-block {
-            background: #333; border-radius: 8px; padding: 12px 14px;
-            margin-bottom: 10px;
+        .size-card {
+            background: #333; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px;
         }
-        .size-block .size-header {
-            color: #fff; font-size: 15px; font-weight: 600; margin-bottom: 6px;
-        }
-        .size-block .size-row {
+        .card-header { color: #fff; font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+        .info-line { font-size: 12px; color: #aaa; margin-bottom: 6px; line-height: 1.5; }
+        .green { color: #5c5; }
+        .highlight { color: #fa0; }
+        .cuts-row {
             display: flex; justify-content: space-between;
-            color: #ccc; font-size: 13px; padding: 2px 0;
+            padding: 2px 0; font-size: 13px; color: #ccc;
         }
-        .size-block .size-row .val { color: #5c5; font-weight: 600; }
+        .cuts-row .val { color: #5c5; font-weight: 600; font-size: 15px; }
         .summary {
-            background: #444; border-radius: 8px; padding: 14px 16px;
-            margin-top: 12px;
+            background: #444; border-radius: 8px; padding: 14px 16px; margin-top: 12px;
         }
         .summary-row {
             display: flex; justify-content: space-between;
@@ -118,12 +81,8 @@
         .summary-row .val { color: #fff; font-weight: 700; font-size: 16px; }
         .error { color: #e88; text-align: center; margin-top: 12px; display: none; font-size: 13px; }
         .error.show { display: block; }
-        .used-stock-info {
-            background: #2a3a2a; border-radius: 8px; padding: 8px 12px;
-            margin-bottom: 12px; color: #8b8; font-size: 12px;
-        }
         @supports (padding: env(safe-area-inset-top)) {
-            body {
+            .scroll-container {
                 padding-top: calc(16px + env(safe-area-inset-top));
                 padding-bottom: calc(16px + env(safe-area-inset-bottom));
             }
@@ -131,104 +90,62 @@
     </style>
 </head>
 <body>
-<div class="app">
-    <h1>📐 Расчёт прорезов</h1>
+<div class="scroll-container">
+    <div class="app">
+        <h1>📐 Расчёт прорезов</h1>
 
-    <div class="settings">
-        <label>Длина рейки:</label>
-        <input type="number" id="reikaLength" value="270" min="10" max="1000"> см
-        <span class="fixed">🔒 Загрузка: 26 шт.</span>
+        <div class="settings">
+            <label>Длина рейки:</label>
+            <input type="number" id="reikaLength" value="270" min="10" max="1000"> см
+            <span class="fixed">🔒 Загрузка: 26 шт.</span>
+        </div>
+
+        <label>Введите заказ:</label>
+        <textarea id="inputData" placeholder="30x50 — 100
+20x30 — 350"></textarea>
+        <div class="hint">Формат: <b>Ширина x Высота — Количество подрамников</b></div>
+
+        <div class="btn-row">
+            <button class="btn btn-calculate" onclick="calculate()">Рассчитать</button>
+            <button class="btn btn-clear" onclick="clearInput()">Очистить</button>
+            <button class="btn btn-share" onclick="shareResult()" title="Поделиться">📤</button>
+        </div>
+
+        <div class="error" id="error"></div>
+        <div class="results" id="results"></div>
     </div>
-
-    <div class="stock-panel">
-        <span class="stock-title">📦 Склад остатков:</span>
-        <span class="stock-list" id="stockList">пусто</span>
-        <button class="btn-clear-stock" onclick="clearStock()">Очистить</button>
-    </div>
-
-    <label>Введите заказ:</label>
-    <textarea id="inputData" placeholder="40x50 — 100
-30x40 — 200
-50x70 — 80"></textarea>
-    <div class="hint">Формат: <b>Ширина x Высота — Количество подрамников</b></div>
-
-    <div class="btn-row">
-        <button class="btn btn-calculate" onclick="calculate()">Рассчитать</button>
-        <button class="btn btn-clear" onclick="clearInput()">Очистить</button>
-        <button class="btn btn-share" onclick="shareResult()" title="Поделиться">📤</button>
-    </div>
-
-    <div class="error" id="error"></div>
-    <div class="results" id="results"></div>
 </div>
 
 <script>
-const LOAD = 26;
-let stock = {};
-let lastResultText = '';
+var LOAD = 26;
+var lastResultText = '';
 
 function getReikaLength() {
-    const val = parseInt(document.getElementById('reikaLength').value);
+    var val = parseInt(document.getElementById('reikaLength').value);
     return (val > 0) ? val : 270;
 }
 
-function loadStock() {
-    const s = localStorage.getItem('pod_stock_v2');
-    if (s) { try { stock = JSON.parse(s); } catch(e) { stock = {}; } }
-    renderStock();
-}
-function saveStock() {
-    localStorage.setItem('pod_stock_v2', JSON.stringify(stock));
-    renderStock();
-}
-function renderStock() {
-    const list = document.getElementById('stockList');
-    const e = Object.entries(stock).filter(([_,q]) => q > 0);
-    if (!e.length) { list.textContent = 'пусто'; return; }
-    e.sort((a,b) => parseInt(a[0]) - parseInt(b[0]));
-    list.textContent = e.map(([l,q]) => `${l} см × ${q}`).join(', ');
-}
-function clearStock() {
-    if (confirm('Очистить склад?')) { stock = {}; saveStock(); }
-}
-
-function takeFromStock(len) {
-    const k = String(len);
-    if (stock[k] && stock[k] > 0) {
-        stock[k]--;
-        saveStock();
-        return true;
-    }
-    return false;
-}
-
-function addToStock(len) {
-    if (len > 0 && (len < 9 || (len >= 30 && len <= 33))) {
-        const k = String(len);
-        stock[k] = (stock[k] || 0) + 1;
-        saveStock();
-        return true;
-    }
-    return false;
-}
-
 function parseInput(text) {
-    const lines = text.split('\n').filter(l => l.trim());
-    const items = [];
-    for (const l of lines) {
-        const m = l.match(/(\d+)\s*[xх×]\s*(\d+)\s*[-—–]\s*(\d+)/i);
+    var lines = text.split('\n').filter(function(l) { return l.trim() !== ''; });
+    var items = [];
+    for (var i = 0; i < lines.length; i++) {
+        var l = lines[i];
+        var m = l.match(/(\d+)\s*[xх×]\s*(\d+)\s*[-—–]\s*(\d+)/i);
         if (m) {
-            const w = parseInt(m[1]), h = parseInt(m[2]), q = parseInt(m[3]);
-            if (w>0 && h>0 && q>0) items.push({width:w, height:h, quantity:q});
+            var w = parseInt(m[1]), h = parseInt(m[2]), q = parseInt(m[3]);
+            if (w > 0 && h > 0 && q > 0) {
+                items.push({width: w, height: h, quantity: q});
+            }
         }
     }
     return items;
 }
 
 function calculate() {
-    const input = document.getElementById('inputData').value.trim();
-    const errDiv = document.getElementById('error');
-    const resDiv = document.getElementById('results');
+    var input = document.getElementById('inputData').value.trim();
+    var errDiv = document.getElementById('error');
+    var resDiv = document.getElementById('results');
+
     errDiv.classList.remove('show');
     resDiv.classList.remove('show');
 
@@ -238,145 +155,71 @@ function calculate() {
         return;
     }
 
-    const items = parseInput(input);
-    if (!items.length) {
+    var items = parseInput(input);
+    if (items.length === 0) {
         errDiv.textContent = 'Неверный формат. Пример: 40x50 — 100';
         errDiv.classList.add('show');
         return;
     }
 
-    const reikaLen = getReikaLength();
+    var reikaLen = getReikaLength();
+    var html = '';
+    var textResult = '📐 Расчёт прорезов\nДлина рейки: ' + reikaLen + ' см | Загрузка: ' + LOAD + ' шт.\n\n';
+    var totalAllCuts = 0;
 
-    // === НОВАЯ ЛОГИКА: собираем ВСЕ детали в общий список ===
-    // Но запоминаем, сколько деталей каждого размера нужно для каждого пункта
-    let allParts = [];
-    let orderSummary = []; // { width, height, quantity, needW, needH }
+    for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        var needW = item.quantity * 2;
+        var needH = item.quantity * 2;
 
-    for (const item of items) {
-        const needW = item.quantity * 2;
-        const needH = item.quantity * 2;
-        orderSummary.push({
-            width: item.width,
-            height: item.height,
-            quantity: item.quantity,
-            needW: needW,
-            needH: needH
-        });
-        for (let i = 0; i < needW; i++) allParts.push(item.width);
-        for (let i = 0; i < needH; i++) allParts.push(item.height);
+        var perW = Math.floor(reikaLen / item.width);
+        var perH = Math.floor(reikaLen / item.height);
+        var restW = reikaLen - perW * item.width;
+        var restH = reikaLen - perH * item.height;
+
+        var reikiW = Math.ceil(needW / perW);
+        var reikiH = Math.ceil(needH / perH);
+
+        var cutsW = Math.ceil(reikiW / LOAD);
+        var cutsH = Math.ceil(reikiH / LOAD);
+        var totalCuts = cutsW + cutsH;
+        totalAllCuts += totalCuts;
+
+        html += '<div class="size-card">' +
+            '<div class="card-header">📏 ' + item.width + '×' + item.height + ' — ' + item.quantity + ' шт.</div>' +
+            '<div class="info-line">' +
+            'С 1 рейки: <span class="green">' + perW + ' шт. по ' + item.width + ' см</span> (ост. <span class="highlight">' + restW + ' см</span>) | ' +
+            '<span class="green">' + perH + ' шт. по ' + item.height + ' см</span> (ост. <span class="highlight">' + restH + ' см</span>)<br>' +
+            'Нужно деталей: ' + item.width + 'см × ' + needW + ' | ' + item.height + 'см × ' + needH + '<br>' +
+            'Рейк: ' + reikiW + ' + ' + reikiH + ' = ' + (reikiW + reikiH) +
+            '</div>' +
+            '<div class="cuts-row"><span>🔪 Прорезов в ' + item.width + '</span><span class="val">' + cutsW + ' шт.</span></div>' +
+            '<div class="cuts-row"><span>🔪 Прорезов в ' + item.height + '</span><span class="val">' + cutsH + ' шт.</span></div>' +
+            '<div class="cuts-row" style="border-top:1px solid #555; padding-top:4px; margin-top:4px;">' +
+            '<span style="color:#fff;">Итого прорезов</span>' +
+            '<span class="val">' + totalCuts + ' шт.</span>' +
+            '</div></div>';
+
+        textResult += item.width + '×' + item.height + ' — ' + item.quantity + ' шт.\n';
+        textResult += '  С рейки: ' + perW + '×' + item.width + ' (ост.' + restW + ') + ' + perH + '×' + item.height + ' (ост.' + restH + ')\n';
+        textResult += '  Рейк: ' + reikiW + ' + ' + reikiH + ', Прорезов: ' + cutsW + ' + ' + cutsH + ' = ' + totalCuts + '\n\n';
     }
 
-    // Сортируем все детали по убыванию
-    allParts.sort((a, b) => b - a);
+    html += '<div class="summary">' +
+        '<div class="summary-row">' +
+        '<span>🔪 Всего прорезов на заказ:</span>' +
+        '<span class="val">' + totalAllCuts + ' шт.</span>' +
+        '</div></div>';
 
-    // Сначала забираем всё что можно со склада
-    let remaining = [];
-    let usedFromStock = {}; // { длина: количество }
-    for (const part of allParts) {
-        if (takeFromStock(part)) {
-            usedFromStock[part] = (usedFromStock[part] || 0) + 1;
-        } else {
-            remaining.push(part);
-        }
-    }
-
-    // Режем оставшееся на новых рейках
-    let usedReiki = 0;
-    let freshStock = []; // остатки с новых реек (временный склад внутри заказа)
-
-    while (remaining.length > 0) {
-        usedReiki++;
-        let space = reikaLen;
-        let newRemaining = [];
-
-        for (let i = 0; i < remaining.length; i++) {
-            if (remaining[i] <= space) {
-                space -= remaining[i];
-            } else {
-                newRemaining.push(remaining[i]);
-            }
-        }
-
-        // Остаток с этой рейки
-        if (space > 0) {
-            // Пробуем сразу использовать для мелких деталей
-            freshStock.push(space);
-        }
-
-        remaining = newRemaining;
-    }
-
-    // Теперь пробуем использовать свежие остатки (freshStock) для оставшихся деталей
-    // Но так как все детали уже распределены, просто сохраняем пригодные
-    for (const rest of freshStock) {
-        addToStock(rest);
-    }
-
-    // Считаем прорезы: usedReiki / LOAD с округлением вверх
-    const totalCuts = Math.ceil(usedReiki / LOAD);
-
-    // === ВЫВОД РЕЗУЛЬТАТОВ ===
-    let html = '';
-
-    // Информация об использованном складе
-    const usedEntries = Object.entries(usedFromStock).sort((a,b) => parseInt(a[0]) - parseInt(b[0]));
-    if (usedEntries.length > 0) {
-        html += `<div class="used-stock-info">📦 Использовано со склада: ` +
-            usedEntries.map(([l,q]) => `${l} см × ${q}`).join(', ') + `</div>`;
-    }
-
-    // Вывод по каждому размеру
-    let textResult = `📐 Расчёт прорезов\nДлина рейки: ${reikaLen} см | Загрузка: ${LOAD} шт.\n\n`;
-
-    for (const item of orderSummary) {
-        // Сколько прорезов «стоит» этот размер
-        // Все детали смешаны, поэтому точное число прорезов на размер дать сложно.
-        // Показываем общее количество прорезов и пропорцию.
-        const totalParts = item.needW + item.needH;
-        const partRatio = totalParts / allParts.length;
-        const approxCuts = Math.max(1, Math.round(totalCuts * partRatio));
-
-        html += `
-        <div class="size-block">
-            <div class="size-header">📏 ${item.width}×${item.height} — ${item.quantity} шт.</div>
-            <div class="size-row">
-                <span>Деталей ${item.width} см</span>
-                <span class="val">${item.needW} шт.</span>
-            </div>
-            <div class="size-row">
-                <span>Деталей ${item.height} см</span>
-                <span class="val">${item.needH} шт.</span>
-            </div>
-            <div class="size-row" style="border-top:1px solid #555; margin-top:4px; padding-top:4px;">
-                <span style="color:#aaa;">≈ доля прорезов</span>
-                <span class="val">${approxCuts} шт.</span>
-            </div>
-        </div>`;
-
-        textResult += `${item.width}×${item.height} — ${item.quantity} шт.\n`;
-        textResult += `  Деталей ${item.width}: ${item.needW} шт.\n`;
-        textResult += `  Деталей ${item.height}: ${item.needH} шт.\n\n`;
-    }
-
-    html += `
-    <div class="summary">
-        <div class="summary-row">
-            <span>🔪 Всего прорезов на заказ:</span>
-            <span class="val">${totalCuts} шт.</span>
-        </div>
-        <div class="summary-row" style="font-size:12px; color:#888; margin-top:4px;">
-            <span>Все детали оптимизированы вместе. Остатки переиспользованы.</span>
-        </div>
-    </div>`;
-
-    textResult += `🔪 Всего прорезов: ${totalCuts} шт.\n`;
-    textResult += `\n📦 Склад: ` + (Object.entries(stock).filter(([_,q]) => q > 0).length > 0 ?
-        Object.entries(stock).filter(([_,q]) => q > 0).sort((a,b) => parseInt(a[0])-parseInt(b[0])).map(([l,q]) => `${l} см × ${q}`).join(', ') :
-        'пусто');
+    textResult += '🔪 Всего прорезов: ' + totalAllCuts + ' шт.';
 
     resDiv.innerHTML = html;
     resDiv.classList.add('show');
     lastResultText = textResult;
+
+    setTimeout(function() {
+        resDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 200);
 }
 
 function shareResult() {
@@ -385,12 +228,10 @@ function shareResult() {
         return;
     }
     if (navigator.share) {
-        navigator.share({ text: lastResultText }).catch(() => {});
+        navigator.share({ text: lastResultText }).catch(function() {});
     } else {
-        navigator.clipboard.writeText(lastResultText).then(() => {
-            alert('Результат скопирован!');
-        }).catch(() => {
-            alert('Не поддерживается.');
+        navigator.clipboard.writeText(lastResultText).then(function() {
+            alert('Скопировано!');
         });
     }
 }
@@ -401,14 +242,6 @@ function clearInput() {
     document.getElementById('error').classList.remove('show');
     lastResultText = '';
 }
-
-document.getElementById('reikaLength').addEventListener('change', function() {
-    localStorage.setItem('reika_length_v2', this.value);
-});
-const savedLen = localStorage.getItem('reika_length_v2');
-if (savedLen) document.getElementById('reikaLength').value = savedLen;
-
-loadStock();
 </script>
 </body>
 </html>
