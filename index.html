@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Расчёт прорезов</title>
+    <style>
+        body {
+            background: #2c2c2c;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        h1 { font-size: 20px; text-align: center; }
+        label { display: block; margin-top: 12px; font-size: 14px; color: #aaa; }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 4px;
+            background: #444;
+            border: 1px solid #555;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+        }
+        textarea { height: 100px; }
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 12px;
+            background: #5a8;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .result {
+            background: #333;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            display: none;
+        }
+        .result.show { display: block; }
+        .result p { margin: 4px 0; font-size: 14px; }
+        .result .big { font-size: 18px; font-weight: bold; color: #5c5; }
+        .error { color: #e88; display: none; }
+        .error.show { display: block; }
+    </style>
+</head>
+<body>
+    <h1>📐 Расчёт прорезов</h1>
+    
+    <label>Длина рейки (см):</label>
+    <input type="number" id="reika" value="270">
+    
+    <label>Заказ:</label>
+    <textarea id="order" placeholder="30x50 — 100
+20x30 — 350"></textarea>
+    <p style="font-size:11px;color:#888;">Формат: Ширина x Высота — Количество</p>
+    
+    <button onclick="calc()">Рассчитать</button>
+    
+    <p class="error" id="error"></p>
+    <div class="result" id="result"></div>
+
+    <script>
+    function calc() {
+        var reika = parseInt(document.getElementById('reika').value) || 270;
+        var text = document.getElementById('order').value.trim();
+        var errEl = document.getElementById('error');
+        var resEl = document.getElementById('result');
+        
+        errEl.classList.remove('show');
+        resEl.classList.remove('show');
+        
+        if (!text) {
+            errEl.textContent = 'Введите заказ';
+            errEl.classList.add('show');
+            return;
+        }
+        
+        var lines = text.split('\n');
+        var html = '';
+        var total = 0;
+        var found = false;
+        
+        for (var i = 0; i < lines.length; i++) {
+            var m = lines[i].match(/(\d+)\s*[xх×]\s*(\d+)\s*[-—–]\s*(\d+)/i);
+            if (!m) continue;
+            found = true;
+            
+            var w = parseInt(m[1]);
+            var h = parseInt(m[2]);
+            var q = parseInt(m[3]);
+            
+            var needW = q * 2;
+            var needH = q * 2;
+            
+            var perW = Math.floor(reika / w);
+            var perH = Math.floor(reika / h);
+            var restW = reika - perW * w;
+            var restH = reika - perH * h;
+            
+            var reikiW = Math.ceil(needW / perW);
+            var reikiH = Math.ceil(needH / perH);
+            
+            var cutsW = Math.ceil(reikiW / 26);
+            var cutsH = Math.ceil(reikiH / 26);
+            var sum = cutsW + cutsH;
+            total += sum;
+            
+            html += '<p><b>' + w + '×' + h + ' — ' + q + ' шт.</b></p>';
+            html += '<p>С рейки: ' + perW + '×' + w + ' (ост.' + restW + ') + ' + perH + '×' + h + ' (ост.' + restH + ')</p>';
+            html += '<p>Рейк: ' + reikiW + ' + ' + reikiH + ' | Прорезов: ' + cutsW + ' + ' + cutsH + ' = <span class="big">' + sum + ' шт.</span></p>';
+            html += '<hr style="border-color:#555;">';
+        }
+        
+        if (!found) {
+            errEl.textContent = 'Неверный формат. Пример: 30x50 — 100';
+            errEl.classList.add('show');
+            return;
+        }
+        
+        html += '<p style="font-size:18px;"><b>🔪 Всего прорезов: <span class="big">' + total + ' шт.</span></b></p>';
+        resEl.innerHTML = html;
+        resEl.classList.add('show');
+    }
+    </script>
+</body>
+</html>
