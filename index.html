@@ -13,7 +13,7 @@
         html,body { height:100%; width:100%; overflow:hidden; background:#2c2c2c; font-family:'Segoe UI',Tahoma,sans-serif; -webkit-tap-highlight-color:transparent; -webkit-user-select:none; user-select:none; }
         .scroll-container { height:100%; width:100%; overflow-y:scroll; -webkit-overflow-scrolling:touch; padding:16px; display:flex; justify-content:center; align-items:flex-start; }
         .app { background:#3a3a3a; border-radius:12px; padding:20px; width:100%; max-width:650px; box-shadow:0 8px 32px rgba(0,0,0,0.4); margin-bottom:40px; }
-        h1 { color:#e0e0e0; text-align:center; margin-bottom:14px; font-size:20px; font-weight:500; }
+        h1 { color:#e0e0e0; text-align:center; margin-bottom:14px; font-size:20px; }
         .settings { background:#333; border-radius:8px; padding:10px 14px; margin-bottom:12px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
         .settings label { color:#aaa; font-size:13px; }
         .settings input { width:70px; padding:6px 8px; background:#4a4a4a; border:1px solid #555; border-radius:6px; color:#fff; font-size:14px; text-align:center; outline:none; }
@@ -68,21 +68,20 @@
 </div>
 <script>
 var LOAD = 26;
-var lastResultText = '';
 
 function getReikaLength() {
     var val = parseInt(document.getElementById('reikaLength').value);
-    return (val > 0) ? val : 270;
+    return val > 0 ? val : 270;
 }
 
 function parseInput(text) {
-    var lines = text.split('\n').filter(function(l) { return l.trim() !== ''; });
+    var lines = text.split('\n').filter(function(l) { return l.trim(); });
     var items = [];
     for (var i = 0; i < lines.length; i++) {
         var m = lines[i].match(/(\d+)\s*[xх×]\s*(\d+)\s*[-—–]\s*(\d+)/i);
         if (m) {
             var w = parseInt(m[1]), h = parseInt(m[2]), q = parseInt(m[3]);
-            if (w > 0 && h > 0 && q > 0) items.push({width: w, height: h, quantity: q});
+            if (w > 0 && h > 0 && q > 0) items.push({w: w, h: h, q: q});
         }
     }
     return items;
@@ -90,150 +89,101 @@ function parseInput(text) {
 
 function calculate() {
     var input = document.getElementById('inputData').value.trim();
-    var errDiv = document.getElementById('error');
-    var resDiv = document.getElementById('results');
-    errDiv.classList.remove('show');
-    resDiv.classList.remove('show');
-    if (!input) { errDiv.textContent = 'Введите размеры'; errDiv.classList.add('show'); return; }
+    var errEl = document.getElementById('error');
+    var resEl = document.getElementById('results');
+    errEl.classList.remove('show');
+    resEl.classList.remove('show');
+    if (!input) { errEl.textContent = 'Введите размеры'; errEl.classList.add('show'); return; }
     var items = parseInput(input);
-    if (!items.length) { errDiv.textContent = 'Неверный формат'; errDiv.classList.add('show'); return; }
+    if (!items.length) { errEl.textContent = 'Неверный формат'; errEl.classList.add('show'); return; }
 
-    var reikaLen = getReikaLength();
-
-    // Собираем все потребности по размерам
-    var need = {}; // { размер: сколько деталей нужно всего }
+    var R = getReikaLength();
+    
+    // Общие потребности по размерам
+    var need = {};
     for (var i = 0; i < items.length; i++) {
-        var w = items[i].width;
-        var h = items[i].height;
-        var q = items[i].quantity;
-        need[w] = (need[w] || 0) + q * 2;
-        need[h] = (need[h] || 0) + q * 2;
+        need[items[i].w] = (need[items[i].w] || 0) + items[i].q * 2;
+        need[items[i].h] = (need[items[i].h] || 0) + items[i].h === items[i].w ? 0 : items[i].q * 2;
+        // Исправляю: для h тоже добавляем
+    }
+    // Пересоберём need правильно
+    need = {};
+    for (var i = 0; i < items.length; i++) {
+        need[items[i].w] = (need[items[i].w] || 0) + items[i].q * 2;
+        need[items[i].h] = (need[items[i].h] || 0) + items[i].q * 2;
     }
 
-    // Сортируем размеры по убыванию — большие режем первыми
     var sizes = Object.keys(need).map(Number).sort(function(a,b) { return b - a; });
+    
+    var leftovers = {}; // { длина: количество кусков }
+    var cuts = {}; // { размер: прорезов }
 
-    var restPieces = {}; // остатки-куски реек: { длина: количество }
-
-    // Первый проход: режем каждый размер, собираем остатки
-    var reikiBySize = {}; // { размер: сколько реек }
-    var cutsBySize = {};  // { размер: сколько прорезов }
-
-    for (var i = 0; i < sizes.length; i++) {
-        var size = sizes[i];
+    for (var s = 0; s < sizes.length; s++) {
+        var size = sizes[s];
         var needed = need[size] || 0;
-        if (needed === 0) continue;
 
-        var perReika = Math.floor(reikaLen / size);
-        if (perReika === 0) { cutsBySize[size] = 0; reikiBySize[size] = 0; continue; }
-
-        var reiki = Math.ceil(needed / perReika);
-        reikiBySize[size] = reiki;
-        cutsBySize[size] = Math.ceil(reiki / LOAD);
-
-        // Остаток с каждой рейки
-        var rest = reikaLen - perReika * size;
-        if (rest > 0) {
-            restPieces[rest] = (restPieces[rest] || 0) + reiki;
+        // Сначала берём из остатков
+        var fromLeftovers = 0;
+        var leftKeys = Object.keys(leftovers).map(Number).sort(function(a,b) { return b - a; });
+        for (var k = 0; k < leftKeys.length && needed > 0; k++) {
+            var lk = leftKeys[k];
+            if (lk >= size && leftovers[lk] > 0) {
+                var take = Math.min(leftovers[lk], needed);
+                needed -= take;
+                leftovers[lk] -= take;
+                fromLeftovers += take;
+                if (leftovers[lk] <= 0) delete leftovers[lk];
+            }
         }
-    }
 
-    // Второй проход: используем остатки для уменьшения потребностей
-    var bonus = {}; // { размер: сколько деталей получили из остатков }
-    var restSizes = Object.keys(restPieces).map(Number).sort(function(a,b) { return b - a; });
-
-    for (var i = 0; i < restSizes.length; i++) {
-        var restLen = restSizes[i];
-        var restCount = restPieces[restLen];
-        if (restCount <= 0) continue;
-
-        // Из остатка restLen можно нарезать детали меньших размеров
-        for (var j = 0; j < sizes.length && restCount > 0; j++) {
-            var smallSize = sizes[j];
-            if (smallSize > restLen) continue;
-            var canFit = Math.floor(restLen / smallSize);
-            if (canFit === 0) continue;
-            bonus[smallSize] = (bonus[smallSize] || 0) + canFit * restCount;
-            restCount = 0;
-        }
-    }
-
-    // Вычитаем бонусы из потребностей и пересчитываем прорезы
-    for (var i = 0; i < sizes.length; i++) {
-        var size = sizes[i];
-        var newNeed = Math.max(0, (need[size] || 0) - (bonus[size] || 0));
-        if (newNeed === 0) {
-            cutsBySize[size] = 0;
-            reikiBySize[size] = 0;
+        if (needed <= 0) {
+            cuts[size] = 0;
             continue;
         }
-        var perReika = Math.floor(reikaLen / size);
-        if (perReika === 0) { cutsBySize[size] = 0; continue; }
-        var reiki = Math.ceil(newNeed / perReika);
-        reikiBySize[size] = reiki;
-        cutsBySize[size] = Math.ceil(reiki / LOAD);
+
+        var perReika = Math.floor(R / size);
+        if (perReika === 0) { cuts[size] = 0; continue; }
+
+        var reiki = Math.ceil(needed / perReika);
+        cuts[size] = Math.ceil(reiki / LOAD);
+
+        // Остаток с каждой рейки
+        var rest = R - perReika * size;
+        if (rest > 0) {
+            leftovers[rest] = (leftovers[rest] || 0) + reiki;
+        }
     }
 
     // Вывод
     var html = '';
-    var textResult = '📐 Расчёт прорезов (с остатками)\nДлина рейки: ' + reikaLen + ' см\n\n';
-    var totalAllCuts = 0;
-
+    var totalAll = 0;
     for (var i = 0; i < items.length; i++) {
-        var item = items[i];
-        var cutsW = cutsBySize[item.width] || 0;
-        var cutsH = cutsBySize[item.height] || 0;
-        var total = cutsW + cutsH;
-        totalAllCuts += total;
-
-        var needW = item.quantity * 2;
-        var needH = item.quantity * 2;
-        var perW = Math.floor(reikaLen / item.width);
-        var perH = Math.floor(reikaLen / item.height);
-        var bonusW = bonus[item.width] || 0;
-        var bonusH = bonus[item.height] || 0;
-        // Пропорционально распределяем бонусы
-        var ratioW = needW / (needW + needH);
-        var myBonusW = Math.round(bonusW * ratioW);
-        var myBonusH = Math.round(bonusH * (1 - ratioW));
-
-        html += '<div class="size-card">' +
-            '<div class="card-header">📏 ' + item.width + '×' + item.height + ' — ' + item.quantity + ' шт.</div>' +
-            '<div class="info-line">' +
-            'С 1 рейки: <span class="green">' + perW + ' шт. по ' + item.width + ' см</span> | <span class="green">' + perH + ' шт. по ' + item.height + ' см</span><br>';
-        if (bonusW > 0 || bonusH > 0) {
-            html += '<span class="blue">♻ Из остатков: ' + item.width + 'см × ' + (bonusW || 0) + ', ' + item.height + 'см × ' + (bonusH || 0) + '</span><br>';
-        }
-        html += 'Нужно: ' + item.width + '×' + needW + ' | ' + item.height + '×' + needH + '</div>' +
-            '<div class="cuts-row"><span>🔪 Прорезов в ' + item.width + '</span><span class="val">' + cutsW + ' шт.</span></div>' +
-            '<div class="cuts-row"><span>🔪 Прорезов в ' + item.height + '</span><span class="val">' + cutsH + ' шт.</span></div>' +
-            '<div class="cuts-row" style="border-top:1px solid #555; padding-top:4px; margin-top:4px;">' +
-            '<span style="color:#fff;">Итого</span><span class="val">' + total + ' шт.</span></div></div>';
-
-        textResult += item.width + '×' + item.height + ' — ' + item.quantity + ' шт.\n';
-        textResult += '  Прорезов: ' + cutsW + ' + ' + cutsH + ' = ' + total + '\n\n';
+        var w = items[i].w, h = items[i].h, q = items[i].q;
+        var cw = cuts[w] || 0, ch = cuts[h] || 0;
+        var sum = cw + ch;
+        totalAll += sum;
+        html += '<div class="size-card"><div class="card-header">📏 ' + w + '×' + h + ' — ' + q + ' шт.</div>';
+        html += '<div class="info-line">С рейки: <span class="green">' + Math.floor(R/w) + '×' + w + '</span> | <span class="green">' + Math.floor(R/h) + '×' + h + '</span></div>';
+        html += '<div class="cuts-row"><span>🔪 Прорезов в ' + w + '</span><span class="val">' + cw + ' шт.</span></div>';
+        html += '<div class="cuts-row"><span>🔪 Прорезов в ' + h + '</span><span class="val">' + ch + ' шт.</span></div>';
+        html += '<div class="cuts-row" style="border-top:1px solid #555;padding-top:4px;margin-top:4px;"><span style="color:#fff;">Итого</span><span class="val">' + sum + ' шт.</span></div></div>';
     }
-
-    html += '<div class="summary"><div class="summary-row"><span>🔪 Всего прорезов:</span><span class="val">' + totalAllCuts + ' шт.</span></div></div>';
-    textResult += '🔪 Всего прорезов: ' + totalAllCuts + ' шт.';
-
-    resDiv.innerHTML = html;
-    resDiv.classList.add('show');
-    lastResultText = textResult;
-    setTimeout(function() { resDiv.scrollIntoView({behavior:'smooth',block:'start'}); }, 200);
+    html += '<div class="summary"><div class="summary-row"><span>🔪 Всего прорезов:</span><span class="val">' + totalAll + ' шт.</span></div></div>';
+    resEl.innerHTML = html;
+    resEl.classList.add('show');
+    lastResultText = 'Всего прорезов: ' + totalAll;
 }
 
+var lastResultText = '';
 function shareResult() {
-    if (!lastResultText) { alert('Сначала нажмите «Рассчитать»'); return; }
-    if (navigator.share) { navigator.share({text:lastResultText}).catch(function(){}); }
-    else { navigator.clipboard.writeText(lastResultText).then(function(){alert('Скопировано!');}); }
+    if (!lastResultText) { alert('Сначала нажмите Рассчитать'); return; }
+    if (navigator.share) navigator.share({text:lastResultText});
+    else alert(lastResultText);
 }
-
 function clearInput() {
     document.getElementById('inputData').value = '';
     document.getElementById('results').classList.remove('show');
     document.getElementById('error').classList.remove('show');
-    lastResultText = '';
 }
 </script>
 </body>
