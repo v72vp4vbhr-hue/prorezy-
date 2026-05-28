@@ -2,18 +2,32 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
     <title>Расчёт прорезов</title>
+
+    <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%D0%A0%D0%B0%D1%81%D1%87%D1%91%D1%82%20%D0%BF%D1%80%D0%BE%D1%80%D0%B5%D0%B7%D0%BE%D0%B2%22%2C%22short_name%22%3A%22%D0%9F%D1%80%D0%BE%D1%80%D0%B5%D0%B7%D1%8B%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%232c2c2c%22%2C%22theme_color%22%3A%22%233a3a3a%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20100%20100'%3E%253Crect%20width%3D'100'%20height%3D'100'%20rx%3D'20'%20fill%3D'%233a3a3a'%2F%3E%253Ctext%20x%3D'50'%20y%3D'68'%20font-size%3D'55'%20text-anchor%3D'middle'%20fill%3D'%235a8'%3E%25E2%259C%2582%253C%2Ftext%3E%253C%2Fsvg%3E%22%2C%22sizes%22%3A%22100x100%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%233a3a3a'/%3E%3Ctext x='50' y='68' font-size='55' text-anchor='middle' fill='%235a8'%3E✂%3C/text%3E%3C/svg%3E">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Прорезы">
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            height: 100%;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            user-select: none;
+        }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #2c2c2c;
             min-height: 100vh;
+            min-height: -webkit-fill-available;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 16px;
         }
         .app {
             background: #3a3a3a;
@@ -22,6 +36,7 @@
             width: 100%;
             max-width: 650px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            margin-bottom: 40px;
         }
         h1 {
             color: #e0e0e0;
@@ -108,6 +123,12 @@
         textarea::-webkit-scrollbar { width: 6px; }
         textarea::-webkit-scrollbar-track { background: #4a4a4a; border-radius: 3px; }
         textarea::-webkit-scrollbar-thumb { background: #777; border-radius: 3px; }
+        @supports (padding: env(safe-area-inset-top)) {
+            body {
+                padding-top: calc(16px + env(safe-area-inset-top));
+                padding-bottom: calc(16px + env(safe-area-inset-bottom));
+            }
+        }
     </style>
 </head>
 <body>
@@ -136,17 +157,20 @@
 </div>
 <script>
 const LOAD = 26;
-const REIKA = 270;
 let stock = {};
 let lastResultText = '';
 
+function getReikaLength() {
+    return 270;
+}
+
 function loadStock() {
-    const s = localStorage.getItem('pod_stock_v10');
+    const s = localStorage.getItem('pod_stock_final');
     if (s) { try { stock = JSON.parse(s); } catch(e) { stock = {}; } }
     renderStock();
 }
 function saveStock() {
-    localStorage.setItem('pod_stock_v10', JSON.stringify(stock));
+    localStorage.setItem('pod_stock_final', JSON.stringify(stock));
     renderStock();
 }
 function renderStock() {
@@ -196,65 +220,22 @@ function calculate() {
     const items = parseInput(input);
     if (!items.length) { errDiv.textContent = 'Неверный формат. Пример: 40x50 — 100'; errDiv.classList.add('show'); return; }
 
-    // Собираем потребности по размерам
-    let need = {};
-    for (const item of items) {
-        need[item.width] = (need[item.width] || 0) + item.quantity * 2;
-        need[item.height] = (need[item.height] || 0) + item.quantity * 2;
-    }
-
-    // Размеры от больших к меньшим
-    const sizes = Object.keys(need).map(Number).sort((a,b) => b-a);
-
-    // Сначала берём что можно со склада
-    for (const size of sizes) {
-        while (need[size] > 0 && takeFromStock(size)) {
-            need[size]--;
-        }
-    }
-
-    let cutsBySize = {};
-    let leftovers = []; // остатки реек в см
-
-    for (const size of sizes) {
-        let needed = need[size];
-        if (needed <= 0) { cutsBySize[size] = 0; continue; }
-
-        // Пробуем взять из остатков
-        for (let i = 0; i < leftovers.length && needed > 0; i++) {
-            if (leftovers[i] >= size) {
-                const canTake = Math.floor(leftovers[i] / size);
-                const take = Math.min(canTake, needed);
-                needed -= take;
-                leftovers[i] -= take * size;
-            }
-        }
-        leftovers = leftovers.filter(x => x > 0);
-
-        if (needed <= 0) { cutsBySize[size] = 0; continue; }
-
-        const perReika = Math.floor(REIKA / size);
-        const reiki = Math.ceil(needed / perReika);
-        cutsBySize[size] = Math.ceil(reiki / LOAD);
-
-        const rest = REIKA - perReika * size;
-        for (let r = 0; r < reiki; r++) {
-            if (rest > 0) leftovers.push(rest);
-        }
-    }
-
-    // Оставшиеся остатки — на склад
-    for (const rest of leftovers) {
-        addToStock(rest);
-    }
-
+    const reikaLen = getReikaLength();
     let html = '';
     let totalCuts = 0;
-    let textResult = `📐 Расчёт прорезов\nДлина рейки: ${REIKA} см | Загрузка: ${LOAD} шт.\n\n`;
+    let textResult = `📐 Расчёт прорезов\nДлина рейки: ${reikaLen} см | Загрузка: ${LOAD} шт.\n\n`;
 
     for (const item of items) {
-        const cutsW = cutsBySize[item.width] || 0;
-        const cutsH = cutsBySize[item.height] || 0;
+        let partsW = [], partsH = [];
+        for (let i = 0; i < item.quantity; i++) {
+            partsW.push(item.width); partsW.push(item.width);
+            partsH.push(item.height); partsH.push(item.height);
+        }
+
+        const cutW = cutReika(partsW, reikaLen);
+        const cutsW = Math.ceil(cutW.used / LOAD);
+        const cutH = cutReika(partsH, reikaLen);
+        const cutsH = Math.ceil(cutH.used / LOAD);
         const sizeCuts = cutsW + cutsH;
         totalCuts += sizeCuts;
 
@@ -293,6 +274,30 @@ function calculate() {
     resDiv.innerHTML = html;
     resDiv.classList.add('show');
     lastResultText = textResult;
+}
+
+function cutReika(partsNeeded, reikaLen) {
+    let remaining = [...partsNeeded].sort((a,b) => b-a);
+    let used = 0;
+    let stillNeed = [];
+    for (const p of remaining) {
+        if (takeFromStock(p)) { /* взяли */ }
+        else { stillNeed.push(p); }
+    }
+    remaining = stillNeed;
+    while (remaining.length > 0) {
+        used++;
+        let space = reikaLen;
+        for (let i = 0; i < remaining.length; i++) {
+            if (remaining[i] <= space) {
+                space -= remaining[i];
+                remaining.splice(i,1);
+                i--;
+            }
+        }
+        addToStock(space);
+    }
+    return { used };
 }
 
 function shareResult() {
