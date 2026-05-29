@@ -1,321 +1,451 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Расчёт прорезов</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #2c2c2c;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .app {
-            background: #3a3a3a;
-            border-radius: 12px;
-            padding: 20px;
-            width: 100%;
-            max-width: 650px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-        }
-        h1 {
-            color: #e0e0e0;
-            text-align: center;
-            margin-bottom: 14px;
-            font-size: 20px;
-            font-weight: 500;
-        }
-        .info {
-            background: #333;
-            border-radius: 8px;
-            padding: 10px 14px;
-            margin-bottom: 14px;
-            font-size: 13px;
-            color: #aaa;
-            line-height: 1.5;
-        }
-        .info b { color: #ddd; }
-        .stock-panel {
-            background: #2a3a2a;
-            border: 1px solid #3a5a3a;
-            border-radius: 8px;
-            padding: 12px 14px;
-            margin-bottom: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .stock-title { color: #8b8; font-size: 13px; font-weight: 600; }
-        .stock-list { color: #ccc; font-size: 13px; flex: 1; min-width: 200px; }
-        .btn-clear-stock {
-            background: #833; color: #fcc; border: none;
-            padding: 8px 14px; border-radius: 6px; font-size: 13px; cursor: pointer;
-        }
-        label { display: block; color: #b0b0b0; margin-bottom: 6px; font-size: 14px; }
-        textarea {
-            width: 100%; height: 140px;
-            background: #4a4a4a; border: 1px solid #555; border-radius: 8px;
-            color: #fff; font-size: 14px; padding: 12px; outline: none; resize: vertical;
-            font-family: 'SF Mono', 'Menlo', 'Courier New', monospace; line-height: 1.6;
-        }
-        textarea:focus { border-color: #888; }
-        .hint { color: #888; font-size: 11px; margin-top: 4px; line-height: 1.4; }
-        .btn-row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
-        .btn {
-            flex: 1; min-width: 100px; padding: 12px;
-            border: none; border-radius: 8px; font-size: 14px; font-weight: 500;
-            cursor: pointer;
-        }
-        .btn-calculate { background: #5a8; color: #fff; }
-        .btn-clear { background: #555; color: #ccc; }
-        .btn-share {
-            background: #48a; color: #fff;
-            flex: 0.5; min-width: 60px;
-            font-size: 18px;
-        }
-        .results { margin-top: 16px; display: none; }
-        .results.show { display: block; }
-        .section-title {
-            color: #ccc; font-size: 14px; font-weight: 600;
-            margin: 12px 0 6px 0; padding-bottom: 4px; border-bottom: 1px solid #555;
-        }
-        .size-block {
-            background: #333; border-radius: 8px; padding: 12px 14px;
-            margin-bottom: 10px;
-        }
-        .size-block .size-header {
-            color: #fff; font-size: 15px; font-weight: 600; margin-bottom: 6px;
-        }
-        .size-block .size-row {
-            display: flex; justify-content: space-between;
-            color: #ccc; font-size: 13px; padding: 2px 0;
-        }
-        .size-block .size-row .val { color: #5c5; font-weight: 600; }
-        .summary {
-            background: #444; border-radius: 8px; padding: 14px 16px;
-            margin-top: 12px;
-        }
-        .summary-row {
-            display: flex; justify-content: space-between;
-            padding: 3px 0; color: #ddd; font-size: 14px;
-        }
-        .summary-row .val { color: #fff; font-weight: 700; font-size: 16px; }
-        .error { color: #e88; text-align: center; margin-top: 12px; display: none; font-size: 13px; }
-        .error.show { display: block; }
-        textarea::-webkit-scrollbar { width: 6px; }
-        textarea::-webkit-scrollbar-track { background: #4a4a4a; border-radius: 3px; }
-        textarea::-webkit-scrollbar-thumb { background: #777; border-radius: 3px; }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FrameCut Pro</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+}
+
+body{
+background:#0f1115;
+color:white;
+padding:16px;
+padding-bottom:120px;
+}
+
+h1{
+font-size:30px;
+margin-bottom:6px;
+font-weight:700;
+}
+
+.subtitle{
+opacity:.6;
+margin-bottom:24px;
+}
+
+.card{
+background:#1a1d24;
+border-radius:22px;
+padding:18px;
+margin-bottom:18px;
+box-shadow:0 0 15px rgba(0,0,0,.25);
+}
+
+.row{
+display:flex;
+gap:10px;
+margin-bottom:10px;
+}
+
+input{
+width:100%;
+padding:16px;
+border:none;
+border-radius:16px;
+background:#2a2e38;
+color:white;
+font-size:18px;
+outline:none;
+}
+
+button{
+border:none;
+border-radius:18px;
+padding:16px;
+font-size:18px;
+font-weight:600;
+cursor:pointer;
+transition:.2s;
+}
+
+.primary{
+background:#4f7cff;
+color:white;
+width:100%;
+}
+
+.secondary{
+background:#2d323d;
+color:white;
+width:100%;
+}
+
+.danger{
+background:#ff4d67;
+color:white;
+}
+
+button:active{
+transform:scale(.98);
+}
+
+.order-item{
+background:#262b35;
+padding:14px;
+border-radius:16px;
+margin-top:10px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.result{
+background:#11151c;
+padding:16px;
+border-radius:18px;
+margin-top:12px;
+line-height:1.6;
+white-space:pre-line;
+}
+
+.good{
+color:#6dff8b;
+}
+
+.bad{
+color:#ff6d6d;
+}
+
+.warn{
+color:#ffd36d;
+}
+
+.bottom{
+position:fixed;
+left:0;
+right:0;
+bottom:0;
+background:#14171d;
+padding:14px;
+display:flex;
+gap:10px;
+border-top:1px solid rgba(255,255,255,.05);
+}
+
+.small{
+font-size:14px;
+opacity:.6;
+margin-top:10px;
+}
+
+.stats{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+margin-top:14px;
+}
+
+.stat{
+background:#262b35;
+padding:14px;
+border-radius:14px;
+text-align:center;
+}
+
+.stat b{
+display:block;
+font-size:24px;
+margin-top:6px;
+}
+</style>
 </head>
+
 <body>
-<div class="app">
-    <h1>📐 Расчёт прорезов</h1>
-    <div class="info">
-        <b>Длина:</b> 270 см &nbsp;|&nbsp; <b>Загрузка:</b> 26 шт. &nbsp;|&nbsp; <b>Деталей на подрамник:</b> 4
-    </div>
-    <div class="stock-panel">
-        <span class="stock-title">📦 Склад остатков:</span>
-        <span class="stock-list" id="stockList">пусто</span>
-        <button class="btn-clear-stock" onclick="clearStock()">Очистить</button>
-    </div>
-    <label>Введите заказ:</label>
-    <textarea id="inputData" placeholder="40x50 — 100
-30x40 — 200
-50x70 — 80"></textarea>
-    <div class="hint">Формат: <b>Ширина x Высота — Количество подрамников</b></div>
-    <div class="btn-row">
-        <button class="btn btn-calculate" onclick="calculate()">Рассчитать</button>
-        <button class="btn btn-clear" onclick="clearInput()">Очистить</button>
-        <button class="btn btn-share" onclick="shareResult()" title="Поделиться">📤</button>
-    </div>
-    <div class="error" id="error"></div>
-    <div class="results" id="results"></div>
+
+<h1>FrameCut Pro</h1>
+<div class="subtitle">
+Расчёт раскроя подрамников
 </div>
+
+<div class="card">
+
+<div class="row">
+<input id="width" type="number" placeholder="Ширина">
+<input id="height" type="number" placeholder="Высота">
+</div>
+
+<div class="row">
+<input id="count" type="number" placeholder="Количество">
+</div>
+
+<button class="primary" onclick="addOrder()">
+Добавить размер
+</button>
+
+<div id="orders"></div>
+
+</div>
+
+<div class="card">
+
+<h2 style="margin-bottom:14px;">Результат</h2>
+
+<div class="stats">
+<div class="stat">
+Реек
+<b id="boardsCount">0</b>
+</div>
+
+<div class="stat">
+Остатки
+<b id="wasteCount">0</b>
+</div>
+</div>
+
+<div id="result" class="result">
+Нет расчёта
+</div>
+
+<div class="small">
+Рейка: 2700 мм<br>
+Пачка пилы: 26 реек
+</div>
+
+</div>
+
+<div class="bottom">
+<button class="secondary" onclick="calculate()">
+Рассчитать
+</button>
+
+<button class="secondary" onclick="shareResult()">
+Поделиться
+</button>
+
+<button class="danger" onclick="clearAll()">
+Очистить
+</button>
+</div>
+
 <script>
-var LOAD = 26;
-var REIKA = 270;
-var stock = {};
-var lastResultText = '';
 
-function loadStock() {
-    var s = localStorage.getItem('pod_stock_final');
-    if (s) { try { stock = JSON.parse(s); } catch(e) { stock = {}; } }
-    renderStock();
-}
-function saveStock() {
-    localStorage.setItem('pod_stock_final', JSON.stringify(stock));
-    renderStock();
-}
-function renderStock() {
-    var list = document.getElementById('stockList');
-    var e = Object.entries(stock).filter(function(x) { return x[1] > 0; });
-    if (!e.length) { list.textContent = 'пусто'; return; }
-    e.sort(function(a,b) { return parseInt(a[0]) - parseInt(b[0]); });
-    list.textContent = e.map(function(x) { return x[0] + ' см × ' + x[1]; }).join(', ');
-}
-function clearStock() {
-    if (confirm('Очистить склад?')) { stock = {}; saveStock(); }
-}
-function takeFromStock(len) {
-    var k = String(len);
-    if (stock[k] && stock[k] > 0) { stock[k]--; saveStock(); return true; }
-    return false;
-}
-function addToStock(len) {
-    if (len > 0 && (len < 9 || (len >= 30 && len <= 33))) {
-        var k = String(len);
-        stock[k] = (stock[k] || 0) + 1;
-        saveStock();
-    }
+const STOCK = 2700;
+const PACK = 26;
+
+let orders = [];
+
+function addOrder(){
+
+const w = Number(document.getElementById("width").value);
+const h = Number(document.getElementById("height").value);
+const c = Number(document.getElementById("count").value);
+
+if(!w || !h || !c) return;
+
+orders.push({
+w,
+h,
+c
+});
+
+renderOrders();
+
+document.getElementById("width").value="";
+document.getElementById("height").value="";
+document.getElementById("count").value="";
+
+saveData();
 }
 
-function parseInput(text) {
-    var lines = text.split('\n').filter(function(l) { return l.trim(); });
-    var items = [];
-    for (var i = 0; i < lines.length; i++) {
-        var m = lines[i].match(/(\d+)\s*[xх×]\s*(\d+)\s*[-—–]\s*(\d+)/i);
-        if (m) {
-            var w = parseInt(m[1]), h = parseInt(m[2]), q = parseInt(m[3]);
-            if (w>0 && h>0 && q>0) items.push({width:w, height:h, quantity:q});
-        }
-    }
-    return items;
+function renderOrders(){
+
+const box = document.getElementById("orders");
+
+box.innerHTML = "";
+
+orders.forEach((o,index)=>{
+
+box.innerHTML += `
+<div class="order-item">
+<div>
+<b>${o.w} × ${o.h}</b><br>
+${o.c} шт
+</div>
+
+<button class="danger"
+onclick="removeOrder(${index})">
+✕
+</button>
+</div>
+`;
+
+});
+
 }
 
-function calculate() {
-    var input = document.getElementById('inputData').value.trim();
-    var errDiv = document.getElementById('error');
-    var resDiv = document.getElementById('results');
-    errDiv.classList.remove('show');
-    resDiv.classList.remove('show');
-
-    if (!input) { errDiv.textContent = 'Введите размеры'; errDiv.classList.add('show'); return; }
-    var items = parseInput(input);
-    if (!items.length) { errDiv.textContent = 'Неверный формат'; errDiv.classList.add('show'); return; }
-
-    // 1. Собираем потребности по размерам
-    var need = {};
-    for (var i = 0; i < items.length; i++) {
-        need[items[i].width] = (need[items[i].width] || 0) + items[i].quantity * 2;
-        need[items[i].height] = (need[items[i].height] || 0) + items[i].quantity * 2;
-    }
-
-    // 2. Сортируем размеры от больших к меньшим
-    var sizes = Object.keys(need).map(Number).sort(function(a,b) { return b - a; });
-
-    // 3. Берём со склада
-    for (var s = 0; s < sizes.length; s++) {
-        var sz = sizes[s];
-        while (need[sz] > 0 && takeFromStock(sz)) {
-            need[sz]--;
-        }
-    }
-
-    // 4. Режем, используя остатки
-    var cuts = {};
-    var leftovers = []; // массив остатков реек
-
-    for (var s = 0; s < sizes.length; s++) {
-        var sz = sizes[s];
-        var needed = need[sz] || 0;
-
-        // Используем остатки
-        for (var l = 0; l < leftovers.length && needed > 0; l++) {
-            if (leftovers[l] >= sz) {
-                var canTake = Math.floor(leftovers[l] / sz);
-                var take = Math.min(canTake, needed);
-                needed -= take;
-                leftovers[l] -= take * sz;
-            }
-        }
-        leftovers = leftovers.filter(function(x) { return x > 0; });
-
-        if (needed <= 0) {
-            cuts[sz] = 0;
-            continue;
-        }
-
-        var perReika = Math.floor(REIKA / sz);
-        var reiki = Math.ceil(needed / perReika);
-        cuts[sz] = Math.ceil(reiki / LOAD);
-
-        var rest = REIKA - perReika * sz;
-        for (var r = 0; r < reiki; r++) {
-            if (rest > 0) leftovers.push(rest);
-        }
-    }
-
-    // 5. Неиспользованные остатки — на склад
-    for (var l = 0; l < leftovers.length; l++) {
-        addToStock(leftovers[l]);
-    }
-
-    // 6. Вывод
-    var html = '';
-    var totalCuts = 0;
-    var textResult = '📐 Расчёт прорезов\nДлина рейки: ' + REIKA + ' см | Загрузка: ' + LOAD + ' шт.\n\n';
-
-    for (var i = 0; i < items.length; i++) {
-        var w = items[i].width, h = items[i].height, q = items[i].quantity;
-        var cw = cuts[w] || 0;
-        var ch = cuts[h] || 0;
-        var sum = cw + ch;
-        totalCuts += sum;
-
-        html += '<div class="size-block">' +
-            '<div class="size-header">📏 ' + w + '×' + h + ' — ' + q + ' шт.</div>' +
-            '<div class="size-row"><span>Прорезов в ' + w + '</span><span class="val">' + cw + ' шт.</span></div>' +
-            '<div class="size-row"><span>Прорезов в ' + h + '</span><span class="val">' + ch + ' шт.</span></div>' +
-            '<div class="size-row" style="border-top:1px solid #555; margin-top:4px; padding-top:4px;">' +
-            '<span style="color:#fff;">Итого прорезов</span><span class="val" style="font-size:15px;">' + sum + ' шт.</span></div></div>';
-
-        textResult += w + '×' + h + ' — ' + q + ' шт.\n';
-        textResult += '  Прорезов в ' + w + ': ' + cw + ' шт.\n';
-        textResult += '  Прорезов в ' + h + ': ' + ch + ' шт.\n';
-        textResult += '  Итого: ' + sum + ' шт.\n\n';
-    }
-
-    html += '<div class="summary"><div class="summary-row"><span>🔪 Всего прорезов на заказ:</span><span class="val">' + totalCuts + ' шт.</span></div></div>';
-    textResult += '🔪 Всего прорезов: ' + totalCuts + ' шт.';
-
-    var stockEntries = Object.entries(stock).filter(function(x) { return x[1] > 0; });
-    if (stockEntries.length > 0) {
-        stockEntries.sort(function(a,b) { return parseInt(a[0]) - parseInt(b[0]); });
-        textResult += '\n\n📦 Склад: ' + stockEntries.map(function(x) { return x[0] + ' см × ' + x[1]; }).join(', ');
-    }
-
-    resDiv.innerHTML = html;
-    resDiv.classList.add('show');
-    lastResultText = textResult;
+function removeOrder(index){
+orders.splice(index,1);
+renderOrders();
+saveData();
 }
 
-function shareResult() {
-    if (!lastResultText) { alert('Сначала нажмите «Рассчитать»); return; }
-    if (navigator.share) {
-        navigator.share({ text: lastResultText }).catch(function() {});
-    } else {
-        navigator.clipboard.writeText(lastResultText).then(function() {
-            alert('Результат скопирован!');
-        }).catch(function() {
-            alert('Не поддерживается.');
-        });
-    }
+function calculate(){
+
+let allCuts = [];
+
+orders.forEach(order=>{
+
+for(let i=0;i<order.c;i++){
+
+allCuts.push(order.w * 10);
+allCuts.push(order.h * 10);
+
 }
 
-function clearInput() {
-    document.getElementById('inputData').value = '';
-    document.getElementById('results').classList.remove('show');
-    document.getElementById('error').classList.remove('show');
-    lastResultText = '';
+});
+
+allCuts.sort((a,b)=>b-a);
+
+let boards = [];
+let leftovers30 = [];
+
+allCuts.forEach(cut=>{
+
+let placed = false;
+
+for(let board of boards){
+
+if(board.remaining >= cut){
+
+board.cuts.push(cut);
+board.remaining -= cut;
+
+placed = true;
+break;
 }
-loadStock();
+
+}
+
+if(!placed){
+
+boards.push({
+cuts:[cut],
+remaining:STOCK - cut
+});
+
+}
+
+});
+
+let output = "";
+
+let waste = 0;
+
+boards.forEach((b,index)=>{
+
+const cutsMap = {};
+
+b.cuts.forEach(c=>{
+cutsMap[c] = (cutsMap[c]||0)+1;
+});
+
+output += `Рейка #${index+1}\n`;
+
+Object.keys(cutsMap).forEach(k=>{
+
+output += `${cutsMap[k]} × ${k/10}см\n`;
+
+});
+
+if(b.remaining < 100){
+
+output += `Остаток: ${b.remaining/10}см → МУСОР\n\n`;
+waste++;
+
+}else if(b.remaining >=100 && b.remaining <300){
+
+output += `Остаток: ${b.remaining/10}см → ПЛОХОЙ ОСТАТОК\n\n`;
+
+}else{
+
+output += `Остаток: ${b.remaining/10}см → ПОЛЕЗНЫЙ\n\n`;
+
+leftovers30.push(b.remaining);
+
+}
+
+});
+
+document.getElementById("result").innerHTML = output;
+
+document.getElementById("boardsCount").innerText =
+boards.length;
+
+document.getElementById("wasteCount").innerText =
+waste;
+
+saveData();
+
+}
+
+function clearAll(){
+
+orders = [];
+
+renderOrders();
+
+document.getElementById("result").innerHTML =
+"Нет расчёта";
+
+document.getElementById("boardsCount").innerText = "0";
+document.getElementById("wasteCount").innerText = "0";
+
+localStorage.removeItem("framecut");
+
+}
+
+function shareResult(){
+
+const text =
+document.getElementById("result").innerText;
+
+navigator.share?.({
+title:"FrameCut",
+text
+}).catch(()=>{
+
+navigator.clipboard.writeText(text);
+
+alert("Результат скопирован");
+
+});
+
+}
+
+function saveData(){
+
+localStorage.setItem(
+"framecut",
+JSON.stringify(orders)
+);
+
+}
+
+function loadData(){
+
+const data = localStorage.getItem("framecut");
+
+if(data){
+
+orders = JSON.parse(data);
+
+renderOrders();
+
+}
+
+}
+
+loadData();
+
 </script>
+
 </body>
 </html>
