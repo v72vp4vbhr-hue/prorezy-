@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FrameCut Optimizer</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FrameCut Pro</title>
 
 <style>
 
@@ -23,13 +23,14 @@ padding-bottom:120px;
 
 h1{
 font-size:34px;
-margin-bottom:8px;
 font-weight:700;
+margin-bottom:8px;
 }
 
 .subtitle{
 opacity:.6;
-margin-bottom:22px;
+margin-bottom:24px;
+font-size:15px;
 }
 
 .card{
@@ -42,16 +43,16 @@ box-shadow:0 0 20px rgba(0,0,0,.25);
 
 textarea{
 width:100%;
-height:220px;
+height:240px;
+background:#2b3039;
 border:none;
-resize:none;
 border-radius:18px;
 padding:16px;
-background:#2a2f39;
-color:white;
 font-size:17px;
-line-height:1.5;
+color:white;
+resize:none;
 outline:none;
+line-height:1.5;
 }
 
 button{
@@ -88,9 +89,9 @@ color:white;
 
 .bottom{
 position:fixed;
+bottom:0;
 left:0;
 right:0;
-bottom:0;
 background:#14181f;
 padding:14px;
 display:flex;
@@ -103,8 +104,8 @@ background:#11151c;
 border-radius:18px;
 padding:18px;
 margin-top:16px;
-white-space:pre-line;
 line-height:1.8;
+white-space:pre-line;
 font-size:17px;
 }
 
@@ -136,9 +137,13 @@ color:#6dff8b;
 color:#ffd36d;
 }
 
+.red{
+color:#ff6d6d;
+}
+
 .small{
-opacity:.5;
 font-size:14px;
+opacity:.5;
 margin-top:10px;
 line-height:1.5;
 }
@@ -148,7 +153,7 @@ line-height:1.5;
 
 <body>
 
-<h1>FrameCut</h1>
+<h1>FrameCut Pro</h1>
 
 <div class="subtitle">
 Оптимизатор раскроя подрамников
@@ -163,10 +168,11 @@ line-height:1.5;
 <textarea id="input"
 placeholder="Пример:
 
-40х50 - 350
-30х40 - 350
+60х80 - 80
 50х70 - 400
-60х80 - 80"></textarea>
+40х60 - 500
+30х40 - 350
+20х30 - 350"></textarea>
 
 <div class="small">
 Формат:
@@ -256,7 +262,16 @@ function calculate(){
 const text =
 document.getElementById("input").value;
 
-const items = parse(text);
+let items = parse(text);
+
+items.sort((a,b)=>{
+
+const maxA = Math.max(a.w,a.h);
+const maxB = Math.max(b.w,b.h);
+
+return maxB - maxA;
+
+});
 
 document.getElementById("sizes").innerText =
 items.length;
@@ -265,16 +280,27 @@ let result = "";
 
 let totalLoads = 0;
 
+let pool20 = 0;
 let pool30 = 0;
 
 items.forEach(item=>{
 
 let calc =
-optimize(item.w,item.h,item.count,pool30);
+optimize(
+item.w,
+item.h,
+item.count,
+pool20,
+pool30
+);
 
-pool30 += calc.generated30;
+pool20 += calc.new20;
+pool30 += calc.new30;
+
+pool20 -= calc.used20;
 pool30 -= calc.used30;
 
+if(pool20 < 0) pool20 = 0;
 if(pool30 < 0) pool30 = 0;
 
 totalLoads += calc.loads;
@@ -286,20 +312,38 @@ calc.lines.forEach(line=>{
 result += line + "\n";
 });
 
-if(calc.generated30 > 0){
+if(calc.new30){
 
 result +=
 `\n<span class="green">
-+${calc.generated30} заготовок 30см
++${calc.new30} заготовок 30см
 </span>\n`;
 
 }
 
-if(calc.used30 > 0){
+if(calc.used30){
 
 result +=
 `<span class="orange">
--${calc.used30} заготовок 30см использовано
+использовано ${calc.used30} заготовок 30см
+</span>\n`;
+
+}
+
+if(calc.new20){
+
+result +=
+`<span class="green">
++${calc.new20} заготовок 20см
+</span>\n`;
+
+}
+
+if(calc.used20){
+
+result +=
+`<span class="orange">
+использовано ${calc.used20} заготовок 20см
 </span>\n`;
 
 }
@@ -307,6 +351,12 @@ result +=
 result += `\n──────────────\n\n`;
 
 });
+
+result +=
+`\nВсего остатков 30см: ${pool30}\n`;
+
+result +=
+`Всего остатков 20см: ${pool20}\n`;
 
 document.getElementById("loads").innerText =
 totalLoads;
@@ -321,16 +371,18 @@ text
 
 }
 
-function optimize(w,h,count,pool30){
+function optimize(w,h,count,pool20,pool30){
 
 const sidesW = count * 2;
 const sidesH = count * 2;
 
-let variants = [];
+let best = null;
 
-for(let a=1;a<=10;a++){
+for(let a=0;a<=10;a++){
 
-for(let b=1;b<=10;b++){
+for(let b=0;b<=10;b++){
+
+if(a===0 && b===0) continue;
 
 const used =
 (a*w)+(b*h);
@@ -340,59 +392,100 @@ if(used > STOCK) continue;
 const remain =
 STOCK-used;
 
+if(
+remain !==0 &&
+remain !==20 &&
+remain !==30
+){
+continue;
+}
+
+const prodW = a * PACK;
+const prodH = b * PACK;
+
+if(prodW===0 || prodH===0) continue;
+
 const loadsW =
-Math.ceil(sidesW/(a*PACK));
+Math.ceil(sidesW / prodW);
 
 const loadsH =
-Math.ceil(sidesH/(b*PACK));
+Math.ceil(sidesH / prodH);
 
 const loads =
 Math.max(loadsW,loadsH);
 
 let score = loads;
 
-if(remain >=10 && remain <30){
-score += 1000;
+if(remain===30) score -= 5;
+if(remain===20) score -= 3;
+
+if(
+(a===2 && b===2) ||
+(a===3 && b===3) ||
+(a===4 && b===4)
+){
+score -= 2;
 }
 
-if(remain === 30){
-score -= 3;
+if(
+(a>=6 || b>=6)
+){
+score -= 1;
 }
 
-variants.push({
+if(!best || score < best.score){
+
+best = {
 a,
 b,
 remain,
 loads,
 score
-});
+};
 
 }
 
 }
 
-variants.sort((x,y)=>x.score-y.score);
+}
 
-const best = variants[0];
+let new20 = 0;
+let new30 = 0;
 
-let generated30 = 0;
+if(best.remain===20){
 
-if(best.remain === 30){
-
-generated30 =
-best.loads * PACK;
+new20 = best.loads * PACK;
 
 }
 
+if(best.remain===30){
+
+new30 = best.loads * PACK;
+
+}
+
+let used20 = 0;
 let used30 = 0;
 
-if(w === 30){
+if(w===20){
 
-const need30 = sidesW;
+used20 =
+Math.min(pool20,sidesW);
+
+}
+
+if(w===30){
 
 used30 =
-Math.min(pool30,need30);
+Math.min(pool30,sidesW);
 
+}
+
+let realSidesW =
+sidesW - used20 - used30;
+
+if(realSidesW < 0){
+realSidesW = 0;
 }
 
 let lines = [];
@@ -401,13 +494,21 @@ lines.push(
 `${best.loads} загрузок`
 );
 
+if(best.a){
+
 lines.push(
 `${best.a} × ${w}`
 );
 
+}
+
+if(best.b){
+
 lines.push(
 `${best.b} × ${h}`
 );
+
+}
 
 lines.push(
 `остаток ${best.remain}см`
@@ -416,7 +517,9 @@ lines.push(
 return {
 loads:best.loads,
 lines,
-generated30,
+new20,
+new30,
+used20,
 used30
 };
 
@@ -428,7 +531,7 @@ const text =
 document.getElementById("result").innerText;
 
 navigator.share?.({
-title:"FrameCut",
+title:"FrameCut Pro",
 text
 }).catch(()=>{
 
