@@ -6,6 +6,7 @@
 <title>FrameCut Pro</title>
 
 <style>
+
 *{
 margin:0;
 padding:0;
@@ -16,14 +17,14 @@ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
 body{
 background:#0f1115;
 color:white;
-padding:16px;
+padding:18px;
 padding-bottom:120px;
 }
 
 h1{
-font-size:30px;
-margin-bottom:6px;
+font-size:32px;
 font-weight:700;
+margin-bottom:6px;
 }
 
 .subtitle{
@@ -33,110 +34,81 @@ margin-bottom:24px;
 
 .card{
 background:#1a1d24;
-border-radius:22px;
+border-radius:24px;
 padding:18px;
 margin-bottom:18px;
-box-shadow:0 0 15px rgba(0,0,0,.25);
+box-shadow:0 0 20px rgba(0,0,0,.25);
 }
 
-.row{
-display:flex;
-gap:10px;
-margin-bottom:10px;
-}
-
-input{
+textarea{
 width:100%;
-padding:16px;
+height:180px;
 border:none;
-border-radius:16px;
-background:#2a2e38;
+resize:none;
+border-radius:18px;
+padding:16px;
+background:#2a2f39;
 color:white;
-font-size:18px;
+font-size:17px;
 outline:none;
+line-height:1.5;
 }
 
 button{
 border:none;
 border-radius:18px;
-padding:16px;
+padding:18px;
 font-size:18px;
 font-weight:600;
 cursor:pointer;
 transition:.2s;
 }
 
-.primary{
-background:#4f7cff;
-color:white;
-width:100%;
-}
-
-.secondary{
-background:#2d323d;
-color:white;
-width:100%;
-}
-
-.danger{
-background:#ff4d67;
-color:white;
-}
-
 button:active{
 transform:scale(.98);
 }
 
-.order-item{
-background:#262b35;
-padding:14px;
-border-radius:16px;
-margin-top:10px;
-display:flex;
-justify-content:space-between;
-align-items:center;
+.primary{
+width:100%;
+background:#4e7bff;
+color:white;
+margin-top:14px;
+}
+
+.secondary{
+background:#2b3039;
+color:white;
+flex:1;
+}
+
+.danger{
+background:#ff4e68;
+color:white;
 }
 
 .result{
 background:#11151c;
-padding:16px;
 border-radius:18px;
-margin-top:12px;
-line-height:1.6;
+padding:18px;
+margin-top:18px;
 white-space:pre-line;
-}
-
-.good{
-color:#6dff8b;
-}
-
-.bad{
-color:#ff6d6d;
-}
-
-.warn{
-color:#ffd36d;
+line-height:1.7;
+font-size:17px;
 }
 
 .bottom{
 position:fixed;
+bottom:0;
 left:0;
 right:0;
-bottom:0;
-background:#14171d;
+background:#14181f;
 padding:14px;
 display:flex;
 gap:10px;
 border-top:1px solid rgba(255,255,255,.05);
 }
 
-.small{
-font-size:14px;
-opacity:.6;
-margin-top:10px;
-}
-
-.stats{
+.stat-grid{
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:10px;
@@ -144,261 +116,261 @@ margin-top:14px;
 }
 
 .stat{
-background:#262b35;
+background:#252a34;
 padding:14px;
-border-radius:14px;
+border-radius:16px;
 text-align:center;
 }
 
 .stat b{
 display:block;
-font-size:24px;
-margin-top:6px;
+font-size:26px;
+margin-top:8px;
 }
+
+.example{
+opacity:.5;
+font-size:14px;
+margin-top:10px;
+line-height:1.5;
+}
+
+.green{
+color:#6cff8e;
+}
+
+.orange{
+color:#ffca68;
+}
+
+.red{
+color:#ff6d6d;
+}
+
 </style>
 </head>
 
 <body>
 
 <h1>FrameCut Pro</h1>
+
 <div class="subtitle">
-Расчёт раскроя подрамников
+Оптимизатор раскроя подрамников
 </div>
 
 <div class="card">
 
-<div class="row">
-<input id="width" type="number" placeholder="Ширина">
-<input id="height" type="number" placeholder="Высота">
+<h3 style="margin-bottom:14px;">
+Вставь заказ
+</h3>
+
+<textarea id="orderInput"
+placeholder="Пример:
+
+40х50 - 1040
+30х40 - 1000
+60х80 - 80"></textarea>
+
+<div class="example">
+Формат:
+ширина × высота - количество
 </div>
 
-<div class="row">
-<input id="count" type="number" placeholder="Количество">
-</div>
-
-<button class="primary" onclick="addOrder()">
-Добавить размер
+<button class="primary" onclick="calculate()">
+Рассчитать
 </button>
 
-<div id="orders"></div>
-
 </div>
 
 <div class="card">
 
-<h2 style="margin-bottom:14px;">Результат</h2>
+<h3 style="margin-bottom:14px;">
+Результат
+</h3>
 
-<div class="stats">
+<div class="stat-grid">
+
 <div class="stat">
-Реек
-<b id="boardsCount">0</b>
+Загрузок
+<b id="loads">0</b>
 </div>
 
 <div class="stat">
-Остатки
-<b id="wasteCount">0</b>
+Размеров
+<b id="sizes">0</b>
 </div>
+
 </div>
 
 <div id="result" class="result">
 Нет расчёта
 </div>
 
-<div class="small">
-Рейка: 2700 мм<br>
-Пачка пилы: 26 реек
-</div>
-
 </div>
 
 <div class="bottom">
-<button class="secondary" onclick="calculate()">
-Рассчитать
-</button>
 
-<button class="secondary" onclick="shareResult()">
+<button class="secondary"
+onclick="shareResult()">
 Поделиться
 </button>
 
-<button class="danger" onclick="clearAll()">
+<button class="danger"
+onclick="clearAll()">
 Очистить
 </button>
+
 </div>
 
 <script>
 
 const STOCK = 2700;
-const PACK = 26;
+const RAILS = 26;
 
-let orders = [];
+function parseOrder(text){
 
-function addOrder(){
+const lines = text.split("\n");
 
-const w = Number(document.getElementById("width").value);
-const h = Number(document.getElementById("height").value);
-const c = Number(document.getElementById("count").value);
+let items = [];
 
-if(!w || !h || !c) return;
+lines.forEach(line=>{
 
-orders.push({
-w,
-h,
-c
-});
+line = line.replace(/,/g,".");
 
-renderOrders();
+const match =
+line.match(/(\d+)\s*[xх×]\s*(\d+)\s*[-–—]\s*(\d+)/i);
 
-document.getElementById("width").value="";
-document.getElementById("height").value="";
-document.getElementById("count").value="";
+if(match){
 
-saveData();
-}
-
-function renderOrders(){
-
-const box = document.getElementById("orders");
-
-box.innerHTML = "";
-
-orders.forEach((o,index)=>{
-
-box.innerHTML += `
-<div class="order-item">
-<div>
-<b>${o.w} × ${o.h}</b><br>
-${o.c} шт
-</div>
-
-<button class="danger"
-onclick="removeOrder(${index})">
-✕
-</button>
-</div>
-`;
-
+items.push({
+w:Number(match[1]),
+h:Number(match[2]),
+count:Number(match[3])
 });
 
 }
 
-function removeOrder(index){
-orders.splice(index,1);
-renderOrders();
-saveData();
+});
+
+return items;
+
 }
 
 function calculate(){
 
-let allCuts = [];
+const input =
+document.getElementById("orderInput").value;
 
-orders.forEach(order=>{
+const items = parseOrder(input);
 
-for(let i=0;i<order.c;i++){
+document.getElementById("sizes").innerText =
+items.length;
 
-allCuts.push(order.w * 10);
-allCuts.push(order.h * 10);
-
-}
-
-});
-
-allCuts.sort((a,b)=>b-a);
-
-let boards = [];
-let leftovers30 = [];
-
-allCuts.forEach(cut=>{
-
-let placed = false;
-
-for(let board of boards){
-
-if(board.remaining >= cut){
-
-board.cuts.push(cut);
-board.remaining -= cut;
-
-placed = true;
-break;
-}
-
-}
-
-if(!placed){
-
-boards.push({
-cuts:[cut],
-remaining:STOCK - cut
-});
-
-}
-
-});
+let totalLoads = 0;
 
 let output = "";
 
-let waste = 0;
+items.forEach(item=>{
 
-boards.forEach((b,index)=>{
+const w = item.w;
+const h = item.h;
+const count = item.count;
 
-const cutsMap = {};
+let result = optimize(w,h,count);
 
-b.cuts.forEach(c=>{
-cutsMap[c] = (cutsMap[c]||0)+1;
-});
+totalLoads += result.loads;
 
-output += `Рейка #${index+1}\n`;
+output +=
+`${w}×${h} — ${count} шт\n\n`;
 
-Object.keys(cutsMap).forEach(k=>{
+output +=
+`${result.loads} загрузок\n`;
 
-output += `${cutsMap[k]} × ${k/10}см\n`;
+output +=
+`${result.scheme}\n`;
 
-});
+if(result.waste <= 9){
 
-if(b.remaining < 100){
+output +=
+`<span class="green">Отход: ${result.waste}см</span>\n`;
 
-output += `Остаток: ${b.remaining/10}см → МУСОР\n\n`;
-waste++;
+}else if(result.waste >=10 && result.waste <30){
 
-}else if(b.remaining >=100 && b.remaining <300){
-
-output += `Остаток: ${b.remaining/10}см → ПЛОХОЙ ОСТАТОК\n\n`;
+output +=
+`<span class="orange">Плохой остаток: ${result.waste}см</span>\n`;
 
 }else{
 
-output += `Остаток: ${b.remaining/10}см → ПОЛЕЗНЫЙ\n\n`;
-
-leftovers30.push(b.remaining);
+output +=
+`<span class="green">Полезный остаток: ${result.waste}см</span>\n`;
 
 }
+
+output += `\n──────────────\n\n`;
 
 });
 
-document.getElementById("result").innerHTML = output;
+document.getElementById("loads").innerText =
+totalLoads;
 
-document.getElementById("boardsCount").innerText =
-boards.length;
+document.getElementById("result").innerHTML =
+output;
 
-document.getElementById("wasteCount").innerText =
-waste;
-
-saveData();
+localStorage.setItem(
+"framecut_orders",
+input
+);
 
 }
 
-function clearAll(){
+function optimize(w,h,count){
 
-orders = [];
+let best = null;
 
-renderOrders();
+for(let a=1;a<=10;a++){
 
-document.getElementById("result").innerHTML =
-"Нет расчёта";
+for(let b=1;b<=10;b++){
 
-document.getElementById("boardsCount").innerText = "0";
-document.getElementById("wasteCount").innerText = "0";
+const used =
+(a*w*10)+(b*h*10);
 
-localStorage.removeItem("framecut");
+if(used <= STOCK){
+
+const remain =
+(STOCK-used)/10;
+
+const framesPerLoad =
+Math.min(a,b)*RAILS;
+
+if(framesPerLoad <=0) continue;
+
+const loads =
+Math.ceil(count/framesPerLoad);
+
+const score =
+(remain >=10 && remain <30)
+? 9999 + remain
+: remain;
+
+if(!best || score < best.score){
+
+best = {
+loads,
+scheme:
+`${a} × ${w}\n${b} × ${h}`,
+waste:remain,
+score
+};
+
+}
+
+}
+
+}
+
+}
+
+return best;
 
 }
 
@@ -408,7 +380,7 @@ const text =
 document.getElementById("result").innerText;
 
 navigator.share?.({
-title:"FrameCut",
+title:"FrameCut Pro",
 text
 }).catch(()=>{
 
@@ -420,30 +392,32 @@ alert("Результат скопирован");
 
 }
 
-function saveData(){
+function clearAll(){
 
-localStorage.setItem(
-"framecut",
-JSON.stringify(orders)
-);
+document.getElementById("orderInput").value = "";
+document.getElementById("result").innerHTML =
+"Нет расчёта";
 
-}
+document.getElementById("loads").innerText = "0";
+document.getElementById("sizes").innerText = "0";
 
-function loadData(){
-
-const data = localStorage.getItem("framecut");
-
-if(data){
-
-orders = JSON.parse(data);
-
-renderOrders();
+localStorage.removeItem("framecut_orders");
 
 }
 
+window.onload = ()=>{
+
+const saved =
+localStorage.getItem("framecut_orders");
+
+if(saved){
+
+document.getElementById("orderInput").value =
+saved;
+
 }
 
-loadData();
+}
 
 </script>
 
