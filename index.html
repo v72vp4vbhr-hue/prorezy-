@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FrameCut Pro</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FrameCut Optimizer</title>
 
 <style>
 
@@ -23,14 +23,13 @@ padding-bottom:120px;
 
 h1{
 font-size:34px;
-font-weight:700;
 margin-bottom:8px;
+font-weight:700;
 }
 
 .subtitle{
 opacity:.6;
-margin-bottom:24px;
-font-size:15px;
+margin-bottom:22px;
 }
 
 .card{
@@ -44,15 +43,15 @@ box-shadow:0 0 20px rgba(0,0,0,.25);
 textarea{
 width:100%;
 height:220px;
-background:#2b3039;
 border:none;
+resize:none;
 border-radius:18px;
 padding:16px;
-font-size:17px;
+background:#2a2f39;
 color:white;
-resize:none;
-outline:none;
+font-size:17px;
 line-height:1.5;
+outline:none;
 }
 
 button{
@@ -89,9 +88,9 @@ color:white;
 
 .bottom{
 position:fixed;
-bottom:0;
 left:0;
 right:0;
+bottom:0;
 background:#14181f;
 padding:14px;
 display:flex;
@@ -104,8 +103,8 @@ background:#11151c;
 border-radius:18px;
 padding:18px;
 margin-top:16px;
-line-height:1.8;
 white-space:pre-line;
+line-height:1.8;
 font-size:17px;
 }
 
@@ -137,13 +136,9 @@ color:#6dff8b;
 color:#ffd36d;
 }
 
-.red{
-color:#ff6d6d;
-}
-
 .small{
-font-size:14px;
 opacity:.5;
+font-size:14px;
 margin-top:10px;
 line-height:1.5;
 }
@@ -153,7 +148,7 @@ line-height:1.5;
 
 <body>
 
-<h1>FrameCut Pro</h1>
+<h1>FrameCut</h1>
 
 <div class="subtitle">
 Оптимизатор раскроя подрамников
@@ -168,9 +163,10 @@ line-height:1.5;
 <textarea id="input"
 placeholder="Пример:
 
-40х50 - 1040
-30х40 - 1000
-50х70 - 400"></textarea>
+40х50 - 350
+30х40 - 350
+50х70 - 400
+60х80 - 80"></textarea>
 
 <div class="small">
 Формат:
@@ -226,9 +222,9 @@ onclick="clearAll()">
 <script>
 
 const STOCK = 270;
-const RAILS = 26;
+const PACK = 26;
 
-function parseInput(text){
+function parse(text){
 
 const lines = text.split("\n");
 
@@ -260,67 +256,55 @@ function calculate(){
 const text =
 document.getElementById("input").value;
 
-const items = parseInput(text);
+const items = parse(text);
 
 document.getElementById("sizes").innerText =
 items.length;
 
+let result = "";
+
 let totalLoads = 0;
 
-let resultText = "";
-
-let leftovers = [];
+let pool30 = 0;
 
 items.forEach(item=>{
 
-const sidesW = item.count * 2;
-const sidesH = item.count * 2;
+let calc =
+optimize(item.w,item.h,item.count,pool30);
 
-const best = optimize(
-item.w,
-item.h,
-sidesW,
-sidesH,
-leftovers
-);
+pool30 += calc.generated30;
+pool30 -= calc.used30;
 
-totalLoads += best.loads;
+if(pool30 < 0) pool30 = 0;
 
-resultText +=
+totalLoads += calc.loads;
+
+result +=
 `${item.w}×${item.h} — ${item.count} шт\n\n`;
 
-resultText +=
-`${best.loads} загрузок\n`;
+calc.lines.forEach(line=>{
+result += line + "\n";
+});
 
-resultText +=
-`${best.scheme}\n`;
+if(calc.generated30 > 0){
 
-if(best.leftover >= 30){
-
-leftovers.push(best.leftover);
-
-resultText +=
-`<span class="green">
-Остаток ${best.leftover}см → использован дальше
-</span>\n`;
-
-}else if(best.leftover >=10){
-
-resultText +=
-`<span class="orange">
-Остаток ${best.leftover}см
-</span>\n`;
-
-}else{
-
-resultText +=
-`<span class="green">
-Отход ${best.leftover}см
+result +=
+`\n<span class="green">
++${calc.generated30} заготовок 30см
 </span>\n`;
 
 }
 
-resultText += `\n──────────────\n\n`;
+if(calc.used30 > 0){
+
+result +=
+`<span class="orange">
+-${calc.used30} заготовок 30см использовано
+</span>\n`;
+
+}
+
+result += `\n──────────────\n\n`;
 
 });
 
@@ -328,18 +312,21 @@ document.getElementById("loads").innerText =
 totalLoads;
 
 document.getElementById("result").innerHTML =
-resultText;
+result;
 
 localStorage.setItem(
-"framecut_input",
+"framecut_data",
 text
 );
 
 }
 
-function optimize(w,h,sidesW,sidesH,leftovers){
+function optimize(w,h,count,pool30){
 
-let best = null;
+const sidesW = count * 2;
+const sidesH = count * 2;
+
+let variants = [];
 
 for(let a=1;a<=10;a++){
 
@@ -353,43 +340,85 @@ if(used > STOCK) continue;
 const remain =
 STOCK-used;
 
-const sidesPerLoad =
-Math.min(a,b) * RAILS;
-
-if(sidesPerLoad <=0) continue;
-
 const loadsW =
-Math.ceil(sidesW/(a*RAILS));
+Math.ceil(sidesW/(a*PACK));
 
 const loadsH =
-Math.ceil(sidesH/(b*RAILS));
+Math.ceil(sidesH/(b*PACK));
 
 const loads =
 Math.max(loadsW,loadsH);
 
-let score = remain;
+let score = loads;
 
 if(remain >=10 && remain <30){
 score += 1000;
 }
 
-if(!best || score < best.score){
+if(remain === 30){
+score -= 3;
+}
 
-best = {
+variants.push({
+a,
+b,
+remain,
 loads,
-scheme:
-`${a} × ${w}\n${b} × ${h}`,
-leftover:remain,
 score
+});
+
+}
+
+}
+
+variants.sort((x,y)=>x.score-y.score);
+
+const best = variants[0];
+
+let generated30 = 0;
+
+if(best.remain === 30){
+
+generated30 =
+best.loads * PACK;
+
+}
+
+let used30 = 0;
+
+if(w === 30){
+
+const need30 = sidesW;
+
+used30 =
+Math.min(pool30,need30);
+
+}
+
+let lines = [];
+
+lines.push(
+`${best.loads} загрузок`
+);
+
+lines.push(
+`${best.a} × ${w}`
+);
+
+lines.push(
+`${best.b} × ${h}`
+);
+
+lines.push(
+`остаток ${best.remain}см`
+);
+
+return {
+loads:best.loads,
+lines,
+generated30,
+used30
 };
-
-}
-
-}
-
-}
-
-return best;
 
 }
 
@@ -399,7 +428,7 @@ const text =
 document.getElementById("result").innerText;
 
 navigator.share?.({
-title:"FrameCut Pro",
+title:"FrameCut",
 text
 }).catch(()=>{
 
@@ -421,14 +450,14 @@ document.getElementById("result").innerHTML =
 document.getElementById("loads").innerText = "0";
 document.getElementById("sizes").innerText = "0";
 
-localStorage.removeItem("framecut_input");
+localStorage.removeItem("framecut_data");
 
 }
 
 window.onload = ()=>{
 
 const saved =
-localStorage.getItem("framecut_input");
+localStorage.getItem("framecut_data");
 
 if(saved){
 
