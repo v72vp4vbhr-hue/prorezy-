@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FrameCut Pro</title>
 
 <style>
@@ -11,7 +11,7 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
 }
 
 body{
@@ -22,34 +22,35 @@ padding-bottom:120px;
 }
 
 h1{
-font-size:32px;
+font-size:34px;
 font-weight:700;
-margin-bottom:6px;
+margin-bottom:8px;
 }
 
 .subtitle{
 opacity:.6;
 margin-bottom:24px;
+font-size:15px;
 }
 
 .card{
 background:#1a1d24;
-border-radius:24px;
 padding:18px;
+border-radius:24px;
 margin-bottom:18px;
 box-shadow:0 0 20px rgba(0,0,0,.25);
 }
 
 textarea{
 width:100%;
-height:180px;
+height:220px;
+background:#2b3039;
 border:none;
-resize:none;
 border-radius:18px;
 padding:16px;
-background:#2a2f39;
-color:white;
 font-size:17px;
+color:white;
+resize:none;
 outline:none;
 line-height:1.5;
 }
@@ -69,9 +70,9 @@ transform:scale(.98);
 }
 
 .primary{
-width:100%;
-background:#4e7bff;
+background:#4f7cff;
 color:white;
+width:100%;
 margin-top:14px;
 }
 
@@ -82,18 +83,8 @@ flex:1;
 }
 
 .danger{
-background:#ff4e68;
+background:#ff4d67;
 color:white;
-}
-
-.result{
-background:#11151c;
-border-radius:18px;
-padding:18px;
-margin-top:18px;
-white-space:pre-line;
-line-height:1.7;
-font-size:17px;
 }
 
 .bottom{
@@ -108,6 +99,16 @@ gap:10px;
 border-top:1px solid rgba(255,255,255,.05);
 }
 
+.result{
+background:#11151c;
+border-radius:18px;
+padding:18px;
+margin-top:16px;
+line-height:1.8;
+white-space:pre-line;
+font-size:17px;
+}
+
 .stat-grid{
 display:grid;
 grid-template-columns:1fr 1fr;
@@ -116,7 +117,7 @@ margin-top:14px;
 }
 
 .stat{
-background:#252a34;
+background:#262b35;
 padding:14px;
 border-radius:16px;
 text-align:center;
@@ -124,27 +125,27 @@ text-align:center;
 
 .stat b{
 display:block;
-font-size:26px;
-margin-top:8px;
-}
-
-.example{
-opacity:.5;
-font-size:14px;
-margin-top:10px;
-line-height:1.5;
+font-size:28px;
+margin-top:6px;
 }
 
 .green{
-color:#6cff8e;
+color:#6dff8b;
 }
 
 .orange{
-color:#ffca68;
+color:#ffd36d;
 }
 
 .red{
 color:#ff6d6d;
+}
+
+.small{
+font-size:14px;
+opacity:.5;
+margin-top:10px;
+line-height:1.5;
 }
 
 </style>
@@ -164,14 +165,14 @@ color:#ff6d6d;
 Вставь заказ
 </h3>
 
-<textarea id="orderInput"
+<textarea id="input"
 placeholder="Пример:
 
 40х50 - 1040
 30х40 - 1000
-60х80 - 80"></textarea>
+50х70 - 400"></textarea>
 
-<div class="example">
+<div class="small">
 Формат:
 ширина × высота - количество
 </div>
@@ -224,18 +225,16 @@ onclick="clearAll()">
 
 <script>
 
-const STOCK = 2700;
+const STOCK = 270;
 const RAILS = 26;
 
-function parseOrder(text){
+function parseInput(text){
 
 const lines = text.split("\n");
 
 let items = [];
 
 lines.forEach(line=>{
-
-line = line.replace(/,/g,".");
 
 const match =
 line.match(/(\d+)\s*[xх×]\s*(\d+)\s*[-–—]\s*(\d+)/i);
@@ -258,55 +257,70 @@ return items;
 
 function calculate(){
 
-const input =
-document.getElementById("orderInput").value;
+const text =
+document.getElementById("input").value;
 
-const items = parseOrder(input);
+const items = parseInput(text);
 
 document.getElementById("sizes").innerText =
 items.length;
 
 let totalLoads = 0;
 
-let output = "";
+let resultText = "";
+
+let leftovers = [];
 
 items.forEach(item=>{
 
-const w = item.w;
-const h = item.h;
-const count = item.count;
+const sidesW = item.count * 2;
+const sidesH = item.count * 2;
 
-let result = optimize(w,h,count);
+const best = optimize(
+item.w,
+item.h,
+sidesW,
+sidesH,
+leftovers
+);
 
-totalLoads += result.loads;
+totalLoads += best.loads;
 
-output +=
-`${w}×${h} — ${count} шт\n\n`;
+resultText +=
+`${item.w}×${item.h} — ${item.count} шт\n\n`;
 
-output +=
-`${result.loads} загрузок\n`;
+resultText +=
+`${best.loads} загрузок\n`;
 
-output +=
-`${result.scheme}\n`;
+resultText +=
+`${best.scheme}\n`;
 
-if(result.waste <= 9){
+if(best.leftover >= 30){
 
-output +=
-`<span class="green">Отход: ${result.waste}см</span>\n`;
+leftovers.push(best.leftover);
 
-}else if(result.waste >=10 && result.waste <30){
+resultText +=
+`<span class="green">
+Остаток ${best.leftover}см → использован дальше
+</span>\n`;
 
-output +=
-`<span class="orange">Плохой остаток: ${result.waste}см</span>\n`;
+}else if(best.leftover >=10){
+
+resultText +=
+`<span class="orange">
+Остаток ${best.leftover}см
+</span>\n`;
 
 }else{
 
-output +=
-`<span class="green">Полезный остаток: ${result.waste}см</span>\n`;
+resultText +=
+`<span class="green">
+Отход ${best.leftover}см
+</span>\n`;
 
 }
 
-output += `\n──────────────\n\n`;
+resultText += `\n──────────────\n\n`;
 
 });
 
@@ -314,16 +328,16 @@ document.getElementById("loads").innerText =
 totalLoads;
 
 document.getElementById("result").innerHTML =
-output;
+resultText;
 
 localStorage.setItem(
-"framecut_orders",
-input
+"framecut_input",
+text
 );
 
 }
 
-function optimize(w,h,count){
+function optimize(w,h,sidesW,sidesH,leftovers){
 
 let best = null;
 
@@ -332,25 +346,32 @@ for(let a=1;a<=10;a++){
 for(let b=1;b<=10;b++){
 
 const used =
-(a*w*10)+(b*h*10);
+(a*w)+(b*h);
 
-if(used <= STOCK){
+if(used > STOCK) continue;
 
 const remain =
-(STOCK-used)/10;
+STOCK-used;
 
-const framesPerLoad =
-Math.min(a,b)*RAILS;
+const sidesPerLoad =
+Math.min(a,b) * RAILS;
 
-if(framesPerLoad <=0) continue;
+if(sidesPerLoad <=0) continue;
+
+const loadsW =
+Math.ceil(sidesW/(a*RAILS));
+
+const loadsH =
+Math.ceil(sidesH/(b*RAILS));
 
 const loads =
-Math.ceil(count/framesPerLoad);
+Math.max(loadsW,loadsH);
 
-const score =
-(remain >=10 && remain <30)
-? 9999 + remain
-: remain;
+let score = remain;
+
+if(remain >=10 && remain <30){
+score += 1000;
+}
 
 if(!best || score < best.score){
 
@@ -358,11 +379,9 @@ best = {
 loads,
 scheme:
 `${a} × ${w}\n${b} × ${h}`,
-waste:remain,
+leftover:remain,
 score
 };
-
-}
 
 }
 
@@ -394,25 +413,26 @@ alert("Результат скопирован");
 
 function clearAll(){
 
-document.getElementById("orderInput").value = "";
+document.getElementById("input").value = "";
+
 document.getElementById("result").innerHTML =
 "Нет расчёта";
 
 document.getElementById("loads").innerText = "0";
 document.getElementById("sizes").innerText = "0";
 
-localStorage.removeItem("framecut_orders");
+localStorage.removeItem("framecut_input");
 
 }
 
 window.onload = ()=>{
 
 const saved =
-localStorage.getItem("framecut_orders");
+localStorage.getItem("framecut_input");
 
 if(saved){
 
-document.getElementById("orderInput").value =
+document.getElementById("input").value =
 saved;
 
 }
