@@ -1,577 +1,288 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FrameCut Pro</title>
-
-<style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-}
-
-body{
-background:#0f1115;
-color:white;
-padding:18px;
-padding-bottom:120px;
-}
-
-h1{
-font-size:34px;
-font-weight:700;
-margin-bottom:8px;
-}
-
-.subtitle{
-opacity:.6;
-margin-bottom:24px;
-font-size:15px;
-}
-
-.card{
-background:#1a1d24;
-padding:18px;
-border-radius:24px;
-margin-bottom:18px;
-box-shadow:0 0 20px rgba(0,0,0,.25);
-}
-
-textarea{
-width:100%;
-height:240px;
-background:#2b3039;
-border:none;
-border-radius:18px;
-padding:16px;
-font-size:17px;
-color:white;
-resize:none;
-outline:none;
-line-height:1.5;
-}
-
-button{
-border:none;
-border-radius:18px;
-padding:18px;
-font-size:18px;
-font-weight:600;
-cursor:pointer;
-transition:.2s;
-}
-
-button:active{
-transform:scale(.98);
-}
-
-.primary{
-background:#4f7cff;
-color:white;
-width:100%;
-margin-top:14px;
-}
-
-.secondary{
-background:#2b3039;
-color:white;
-flex:1;
-}
-
-.danger{
-background:#ff4d67;
-color:white;
-}
-
-.bottom{
-position:fixed;
-bottom:0;
-left:0;
-right:0;
-background:#14181f;
-padding:14px;
-display:flex;
-gap:10px;
-border-top:1px solid rgba(255,255,255,.05);
-}
-
-.result{
-background:#11151c;
-border-radius:18px;
-padding:18px;
-margin-top:16px;
-line-height:1.8;
-white-space:pre-line;
-font-size:17px;
-}
-
-.stat-grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-margin-top:14px;
-}
-
-.stat{
-background:#262b35;
-padding:14px;
-border-radius:16px;
-text-align:center;
-}
-
-.stat b{
-display:block;
-font-size:28px;
-margin-top:6px;
-}
-
-.green{
-color:#6dff8b;
-}
-
-.orange{
-color:#ffd36d;
-}
-
-.red{
-color:#ff6d6d;
-}
-
-.small{
-font-size:14px;
-opacity:.5;
-margin-top:10px;
-line-height:1.5;
-}
-
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Раскрой МДФ">
+    <title>Раскрой МДФ</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --card-bg: #1c1c1e;
+            --accent: #0a84ff;
+            --accent-hover: #007aff;
+            --text-main: #ffffff;
+            --text-muted: #8e8e93;
+            --border: #38383a;
+            --success: #30d158;
+            --warning: #ff9f0a;
+        }
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            padding: env(safe-area-inset-top, 15px) 15px env(safe-area-inset-bottom, 15px) 15px; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0;
+        }
+        .card { 
+            background-color: var(--card-bg); 
+            border-radius: 14px; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        h2 { margin: 0 0 20px 0; font-size: 24px; font-weight: 600; }
+        label { display: block; margin-bottom: 6px; font-size: 13px; color: var(--text-muted); text-transform: uppercase; font-weight: 500; }
+        textarea, input { 
+            width: 100%; background: #2c2c2e; color: var(--text-main); border: 1px solid var(--border); 
+            border-radius: 10px; padding: 12px; margin-bottom: 15px; font-size: 16px;
+        }
+        .input-group { display: flex; gap: 12px; }
+        .input-group > div { flex: 1; }
+        button { 
+            background: var(--accent); color: white; border: none; border-radius: 12px; 
+            padding: 16px; width: 100%; font-size: 17px; font-weight: 600; margin-top: 10px;
+        }
+        .stock-panel {
+            background: #1a2a1a; border: 1px solid #2a4a2a; border-radius: 12px;
+            padding: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .stat-box {
+            background: rgba(10,132,255,0.15); border: 1px solid rgba(10,132,255,0.3);
+            border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 16px;
+        }
+        .visual-slat {
+            height: 42px; background: #3a3a3c; display: flex; margin: 12px 0;
+            border-radius: 10px; overflow: hidden; border: 1px solid #555;
+        }
+        .slat-part {
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 600; color: white;
+        }
+        .color-normal { background: var(--accent); }
+        .color-waste { background: #3a3a3c; color: #aaa; font-size: 11px; }
+    </style>
 </head>
-
 <body>
 
-<h1>FrameCut Pro</h1>
-
-<div class="subtitle">
-Оптимизатор раскроя подрамников
-</div>
-
 <div class="card">
+    <h2>📐 Раскрой МДФ</h2>
+    
+    <div class="stock-panel">
+        <strong>Склад остатков (≥20см):</strong>
+        <span id="stockDisplay">пусто</span>
+        <button onclick="clearStock()" style="background:#333; padding:6px 12px; font-size:13px;">Очистить</button>
+    </div>
 
-<h3 style="margin-bottom:14px;">
-Вставь заказ
-</h3>
-
-<textarea id="input"
-placeholder="Пример:
-
-60х80 - 80
-50х70 - 400
-40х60 - 500
-30х40 - 350
-20х30 - 350"></textarea>
-
-<div class="small">
-Формат:
-ширина × высота - количество
+    <label>Заказ (ШхВ - Кол-во):</label>
+    <textarea id="order_input" rows="4">40х50 - 100
+30х25 - 200</textarea>
+    
+    <div class="input-group">
+        <div><label>Рейка (см):</label><input type="number" id="slat_len" value="272"></div>
+        <div><label>В пачке (шт):</label><input type="number" id="pack_size" value="26"></div>
+        <div><label>Диск (мм):</label><input type="number" id="blade" value="3"></div>
+    </div>
+    
+    <button onclick="run()">🪚 РАССЧИТАТЬ</button>
 </div>
 
-<button class="primary" onclick="calculate()">
-Рассчитать
-</button>
-
-</div>
-
-<div class="card">
-
-<h3 style="margin-bottom:14px;">
-Результат
-</h3>
-
-<div class="stat-grid">
-
-<div class="stat">
-Загрузок
-<b id="loads">0</b>
-</div>
-
-<div class="stat">
-Размеров
-<b id="sizes">0</b>
-</div>
-
-</div>
-
-<div id="result" class="result">
-Нет расчёта
-</div>
-
-</div>
-
-<div class="bottom">
-
-<button class="secondary"
-onclick="shareResult()">
-Поделиться
-</button>
-
-<button class="danger"
-onclick="clearAll()">
-Очистить
-</button>
-
+<div class="card" id="results" style="display: none;">
+    <div id="stats_area"></div>
+    <textarea id="text_for_whatsapp" readonly style="width:100%; height:160px; background:#2c2c2e; color:white; margin:15px 0; font-family:monospace;"></textarea>
+    <button onclick="copyText()" style="background:#30d158; color:#000; margin-bottom:15px;">📋 Скопировать для WhatsApp</button>
+    <div id="map_area"></div>
 </div>
 
 <script>
+let stock = JSON.parse(localStorage.getItem('mdf_stock_v4') || '{}');
 
-const STOCK = 270;
-const PACK = 26;
-
-function parse(text){
-
-const lines = text.split("\n");
-
-let items = [];
-
-lines.forEach(line=>{
-
-const match =
-line.match(/(\d+)\s*[xх×]\s*(\d+)\s*[-–—]\s*(\d+)/i);
-
-if(match){
-
-items.push({
-w:Number(match[1]),
-h:Number(match[2]),
-count:Number(match[3])
-});
-
+function saveStock() {
+    localStorage.setItem('mdf_stock_v4', JSON.stringify(stock));
+    renderStock();
 }
 
-});
-
-return items;
-
+function renderStock() {
+    let items = Object.keys(stock)
+        .filter(k => stock[k] > 0 && parseFloat(k) >= 20)
+        .sort((a,b) => parseFloat(a) - parseFloat(b))
+        .map(k => `${parseFloat(k).toFixed(1)}см ×${stock[k]}`);
+    document.getElementById('stockDisplay').textContent = items.length ? items.join(', ') : 'пусто';
 }
 
-function calculate(){
-
-const text =
-document.getElementById("input").value;
-
-let items = parse(text);
-
-items.sort((a,b)=>{
-
-const maxA = Math.max(a.w,a.h);
-const maxB = Math.max(b.w,b.h);
-
-return maxB - maxA;
-
-});
-
-document.getElementById("sizes").innerText =
-items.length;
-
-let result = "";
-
-let totalLoads = 0;
-
-let pool20 = 0;
-let pool30 = 0;
-
-items.forEach(item=>{
-
-let calc =
-optimize(
-item.w,
-item.h,
-item.count,
-pool20,
-pool30
-);
-
-pool20 += calc.new20;
-pool30 += calc.new30;
-
-pool20 -= calc.used20;
-pool30 -= calc.used30;
-
-if(pool20 < 0) pool20 = 0;
-if(pool30 < 0) pool30 = 0;
-
-totalLoads += calc.loads;
-
-result +=
-`${item.w}×${item.h} — ${item.count} шт\n\n`;
-
-calc.lines.forEach(line=>{
-result += line + "\n";
-});
-
-if(calc.new30){
-
-result +=
-`\n<span class="green">
-+${calc.new30} заготовок 30см
-</span>\n`;
-
+function clearStock() {
+    if (confirm('Очистить весь склад остатков?')) {
+        stock = {};
+        saveStock();
+    }
 }
 
-if(calc.used30){
+function run() {
+    try {
+        let text = document.getElementById('order_input').value.trim();
+        let slatLen = parseFloat(document.getElementById('slat_len').value);
+        let packSize = parseInt(document.getElementById('pack_size').value);
+        let blade = parseFloat(document.getElementById('blade').value) / 10;
 
-result +=
-`<span class="orange">
-использовано ${calc.used30} заготовок 30см
-</span>\n`;
+        if (!text) return alert("Введите заказ!");
 
+        // Парсинг заказа
+        let demands = {};
+        let regex = /(\d+(?:\.\d+)?)[\sхxX×*](\d+(?:\.\d+)?)[\s\-:=]+(\d+)/g;
+        let match;
+        while ((match = regex.exec(text)) !== null) {
+            let w = parseFloat(match[1]);
+            let h = parseFloat(match[2]);
+            let qty = parseInt(match[3]);
+            demands[w] = (demands[w] || 0) + qty * 2;
+            demands[h] = (demands[h] || 0) + qty * 2;
+        }
+
+        // Списываем со склада (только ≥20 см)
+        let usedFromStock = {};
+        for (let size in stock) {
+            let sz = parseFloat(size);
+            if (sz >= 20 && demands[sz] > 0) {
+                let take = Math.min(demands[sz], stock[size]);
+                demands[sz] -= take;
+                stock[size] -= take;
+                if (stock[size] <= 0) delete stock[size];
+                usedFromStock[sz] = (usedFromStock[sz] || 0) + take;
+            }
+        }
+
+        let lengths = Object.keys(demands).map(Number).filter(n => demands[n] > 0).sort((a,b) => b-a);
+
+        // Генерация паттернов + расчёт
+        let patterns = [];
+        let cur = new Array(lengths.length).fill(0);
+        function gen(idx, used) {
+            if (idx === lengths.length) {
+                if (used > 0) patterns.push([...cur]);
+                return;
+            }
+            let len = lengths[idx];
+            let max = Math.floor((slatLen - used) / (len + blade));
+            for (let i = max; i >= 0; i--) {
+                cur[idx] = i;
+                gen(idx + 1, used + i * (len + blade));
+            }
+        }
+        gen(0, 0);
+
+        let remaining = {...demands};
+        let plan = [];
+
+        while (Object.values(remaining).some(v => v > 0)) {
+            let best = null, bestScore = -Infinity;
+            for (let p of patterns) {
+                let score = 0, usedLen = 0, hits = false;
+                for (let i = 0; i < lengths.length; i++) {
+                    let cnt = p[i];
+                    if (cnt === 0) continue;
+                    let len = lengths[i];
+                    usedLen += cnt * (len + blade);
+                    if (remaining[len] > 0) {
+                        score += Math.min(cnt, remaining[len]) * len;
+                        hits = true;
+                    }
+                }
+                if (!hits) continue;
+                let rest = slatLen - usedLen;
+                score -= rest * 1.2;
+                if (score > bestScore) {
+                    bestScore = score;
+                    best = p;
+                }
+            }
+            if (!best) break;
+
+            let steps = 999999;
+            for (let i = 0; i < lengths.length; i++) {
+                if (best[i] > 0 && remaining[lengths[i]] > 0) {
+                    steps = Math.min(steps, Math.ceil(remaining[lengths[i]] / best[i]));
+                }
+            }
+            if (steps === 999999) steps = 1;
+
+            for (let i = 0; i < lengths.length; i++) {
+                remaining[lengths[i]] -= best[i] * steps;
+            }
+            plan.push({pattern: best, count: steps});
+        }
+
+        // Сохраняем остатки ≥20 см
+        for (let p of plan) {
+            let used = 0;
+            for (let i = 0; i < lengths.length; i++) {
+                used += p.pattern[i] * (lengths[i] + blade);
+            }
+            let rest = slatLen - used;
+            if (rest >= 20) {
+                let key = rest.toFixed(1);
+                stock[key] = (stock[key] || 0) + p.count;
+            }
+        }
+        saveStock();
+
+        // Красивый вывод
+        let total = plan.reduce((sum, p) => sum + p.count, 0);
+        let packs = Math.floor(total / packSize);
+        let loose = total % packSize;
+
+        let statsHTML = `
+            <div class="stat-box">
+                <h3>Всего реек: ${total} шт</h3>
+                <p>${packs} пачек + ${loose} шт</p>
+            </div>
+        `;
+
+        let waText = `📦 ЗАКАЗ В РАСПИЛ\nВсего реек: ${total} шт (${packs} пач. + ${loose} шт.)\n\n🛠 КАРТА РАСПИЛА:\n`;
+        let mapHTML = '';
+
+        plan.forEach((item, idx) => {
+            let pCount = Math.floor(item.count / packSize);
+            let lCount = item.count % packSize;
+            let countTxt = pCount > 0 ? `${pCount} пач.` + (lCount > 0 ? ` + ${lCount} шт` : '') : `${lCount} шт`;
+
+            let parts = [];
+            let used = 0;
+            let visual = '<div class="visual-slat">';
+            for (let i = 0; i < lengths.length; i++) {
+                for (let c = 0; c < item.pattern[i]; c++) {
+                    visual += `<div class="slat-part color-normal" style="flex-grow:${lengths[i]}">${lengths[i]}</div>`;
+                    used += lengths[i] + blade;
+                    parts.push(lengths[i]);
+                }
+            }
+            let rest = slatLen - used;
+            if (rest > 0.1) visual += `<div class="slat-part color-waste" style="flex-grow:${rest}">${rest.toFixed(1)}</div>`;
+            visual += '</div>';
+
+            waText += `${idx+1}. ${countTxt} — ${parts.join(' + ')}${rest > 0.1 ? ` + отход ${rest.toFixed(1)}` : ''}\n`;
+            mapHTML += `<div class="card"><strong>Рез №${idx+1}</strong> — ${countTxt}<br>${visual}</div>`;
+        });
+
+        document.getElementById('stats_area').innerHTML = statsHTML;
+        document.getElementById('text_for_whatsapp').value = waText;
+        document.getElementById('map_area').innerHTML = mapHTML;
+        document.getElementById('results').style.display = 'block';
+
+    } catch(e) {
+        alert("Ошибка: " + e.message);
+    }
 }
 
-if(calc.new20){
-
-result +=
-`<span class="green">
-+${calc.new20} заготовок 20см
-</span>\n`;
-
+function copyText() {
+    let ta = document.getElementById('text_for_whatsapp');
+    ta.select();
+    document.execCommand('copy');
+    alert('✅ Текст скопирован для WhatsApp!');
 }
 
-if(calc.used20){
-
-result +=
-`<span class="orange">
-использовано ${calc.used20} заготовок 20см
-</span>\n`;
-
-}
-
-result += `\n──────────────\n\n`;
-
-});
-
-result +=
-`\nВсего остатков 30см: ${pool30}\n`;
-
-result +=
-`Всего остатков 20см: ${pool20}\n`;
-
-document.getElementById("loads").innerText =
-totalLoads;
-
-document.getElementById("result").innerHTML =
-result;
-
-localStorage.setItem(
-"framecut_data",
-text
-);
-
-}
-
-function optimize(w,h,count,pool20,pool30){
-
-const sidesW = count * 2;
-const sidesH = count * 2;
-
-let best = null;
-
-for(let a=0;a<=10;a++){
-
-for(let b=0;b<=10;b++){
-
-if(a===0 && b===0) continue;
-
-const used =
-(a*w)+(b*h);
-
-if(used > STOCK) continue;
-
-const remain =
-STOCK-used;
-
-if(
-remain !==0 &&
-remain !==20 &&
-remain !==30
-){
-continue;
-}
-
-const prodW = a * PACK;
-const prodH = b * PACK;
-
-if(prodW===0 || prodH===0) continue;
-
-const loadsW =
-Math.ceil(sidesW / prodW);
-
-const loadsH =
-Math.ceil(sidesH / prodH);
-
-const loads =
-Math.max(loadsW,loadsH);
-
-let score = loads;
-
-if(remain===30) score -= 5;
-if(remain===20) score -= 3;
-
-if(
-(a===2 && b===2) ||
-(a===3 && b===3) ||
-(a===4 && b===4)
-){
-score -= 2;
-}
-
-if(
-(a>=6 || b>=6)
-){
-score -= 1;
-}
-
-if(!best || score < best.score){
-
-best = {
-a,
-b,
-remain,
-loads,
-score
-};
-
-}
-
-}
-
-}
-
-let new20 = 0;
-let new30 = 0;
-
-if(best.remain===20){
-
-new20 = best.loads * PACK;
-
-}
-
-if(best.remain===30){
-
-new30 = best.loads * PACK;
-
-}
-
-let used20 = 0;
-let used30 = 0;
-
-if(w===20){
-
-used20 =
-Math.min(pool20,sidesW);
-
-}
-
-if(w===30){
-
-used30 =
-Math.min(pool30,sidesW);
-
-}
-
-let realSidesW =
-sidesW - used20 - used30;
-
-if(realSidesW < 0){
-realSidesW = 0;
-}
-
-let lines = [];
-
-lines.push(
-`${best.loads} загрузок`
-);
-
-if(best.a){
-
-lines.push(
-`${best.a} × ${w}`
-);
-
-}
-
-if(best.b){
-
-lines.push(
-`${best.b} × ${h}`
-);
-
-}
-
-lines.push(
-`остаток ${best.remain}см`
-);
-
-return {
-loads:best.loads,
-lines,
-new20,
-new30,
-used20,
-used30
-};
-
-}
-
-function shareResult(){
-
-const text =
-document.getElementById("result").innerText;
-
-navigator.share?.({
-title:"FrameCut Pro",
-text
-}).catch(()=>{
-
-navigator.clipboard.writeText(text);
-
-alert("Результат скопирован");
-
-});
-
-}
-
-function clearAll(){
-
-document.getElementById("input").value = "";
-
-document.getElementById("result").innerHTML =
-"Нет расчёта";
-
-document.getElementById("loads").innerText = "0";
-document.getElementById("sizes").innerText = "0";
-
-localStorage.removeItem("framecut_data");
-
-}
-
-window.onload = ()=>{
-
-const saved =
-localStorage.getItem("framecut_data");
-
-if(saved){
-
-document.getElementById("input").value =
-saved;
-
-}
-
-}
-
+renderStock();
 </script>
-
 </body>
 </html>
