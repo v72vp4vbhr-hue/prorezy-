@@ -2,287 +2,274 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Раскрой МДФ">
-    <title>Раскрой МДФ</title>
+    <meta name="apple-mobile-web-app-title" content="Таймер сна">
+    <meta name="theme-color" content="#007aff">
+    <title>Таймер сна — высыпайся легко</title>
+    
+    <link rel="apple-touch-icon" href="sleep-icon.png">
+    <link rel="icon" type="image/png" href="sleep-icon.png">
+    <link rel="manifest" href="manifest-sleep.json">
+    
     <style>
-        :root {
-            --bg-color: #000000;
-            --card-bg: #1c1c1e;
-            --accent: #0a84ff;
-            --accent-hover: #007aff;
-            --text-main: #ffffff;
-            --text-muted: #8e8e93;
-            --border: #38383a;
-            --success: #30d158;
-            --warning: #ff9f0a;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: #f5f5f7;
+            color: #1c1c1e;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+            padding: calc(env(safe-area-inset-top, 20px) + 10px) 16px 40px 16px;
         }
-        body { 
-            background-color: var(--bg-color); 
-            color: var(--text-main); 
-            padding: env(safe-area-inset-top, 15px) 15px env(safe-area-inset-bottom, 15px) 15px; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            margin: 0;
+        
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 28px;
+            margin-top: 8px;
         }
-        .card { 
-            background-color: var(--card-bg); 
-            border-radius: 14px; 
-            padding: 20px; 
-            margin-bottom: 20px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        .header-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 122, 255, 0.15);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
         }
-        h2 { margin: 0 0 20px 0; font-size: 24px; font-weight: 600; }
-        label { display: block; margin-bottom: 6px; font-size: 13px; color: var(--text-muted); text-transform: uppercase; font-weight: 500; }
-        textarea, input { 
-            width: 100%; background: #2c2c2e; color: var(--text-main); border: 1px solid var(--border); 
-            border-radius: 10px; padding: 12px; margin-bottom: 15px; font-size: 16px;
+        .header-text h1 { font-size: 28px; font-weight: 700; }
+        .header-text p { font-size: 14px; color: #6c6c70; }
+        
+        .card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 24px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04), 0 0 0 0.5px rgba(0,0,0,0.02);
         }
-        .input-group { display: flex; gap: 12px; }
-        .input-group > div { flex: 1; }
-        button { 
-            background: var(--accent); color: white; border: none; border-radius: 12px; 
-            padding: 16px; width: 100%; font-size: 17px; font-weight: 600; margin-top: 10px;
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
         }
-        .stock-panel {
-            background: #1a2a1a; border: 1px solid #2a4a2a; border-radius: 12px;
-            padding: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;
+        
+        .time-display {
+            background: #f5f5f7;
+            border-radius: 24px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 24px;
         }
-        .stat-box {
-            background: rgba(10,132,255,0.15); border: 1px solid rgba(10,132,255,0.3);
-            border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 16px;
+        .time-display .label {
+            font-size: 14px;
+            color: #6c6c70;
+            margin-bottom: 8px;
         }
-        .visual-slat {
-            height: 42px; background: #3a3a3c; display: flex; margin: 12px 0;
-            border-radius: 10px; overflow: hidden; border: 1px solid #555;
+        .time-display .time {
+            font-size: 48px;
+            font-weight: 700;
+            color: #007aff;
+            letter-spacing: -1px;
         }
-        .slat-part {
-            display: flex; align-items: center; justify-content: center;
-            font-size: 13px; font-weight: 600; color: white;
+        
+        button {
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 16px;
+            font-size: 17px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.15s ease;
         }
-        .color-normal { background: var(--accent); }
-        .color-waste { background: #3a3a3c; color: #aaa; font-size: 11px; }
+        button:active { transform: scale(0.97); background: #005fc1; }
+        
+        .cycle-info {
+            background: #f5f5f7;
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        .cycle-info p {
+            font-size: 14px;
+            color: #6c6c70;
+            line-height: 1.5;
+        }
+        
+        .mode-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .mode-btn {
+            flex: 1;
+            background: #f5f5f7;
+            color: #1c1c1e;
+            margin-top: 0;
+        }
+        .mode-btn.active {
+            background: #007aff;
+            color: white;
+        }
+        .mode-btn:active { transform: scale(0.97); }
+        
+        .result-list {
+            margin-top: 16px;
+        }
+        .result-item {
+            background: #f5f5f7;
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .result-item .cycles {
+            font-size: 14px;
+            color: #6c6c70;
+        }
+        .result-item .time {
+            font-size: 18px;
+            font-weight: 600;
+            color: #007aff;
+        }
+        
+        .note {
+            font-size: 12px;
+            color: #8e8e93;
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 0.5px solid #e9e9ef;
+        }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>📐 Раскрой МДФ</h2>
-    
-    <div class="stock-panel">
-        <strong>Склад остатков (≥20см):</strong>
-        <span id="stockDisplay">пусто</span>
-        <button onclick="clearStock()" style="background:#333; padding:6px 12px; font-size:13px;">Очистить</button>
+<div class="header">
+    <div class="header-icon">
+        😴
     </div>
+    <div class="header-text">
+        <h1>Таймер сна</h1>
+        <p>Просыпайся бодрым</p>
+    </div>
+</div>
 
-    <label>Заказ (ШхВ - Кол-во):</label>
-    <textarea id="order_input" rows="4">40х50 - 100
-30х25 - 200</textarea>
+<div class="card">
+    <div class="section-title">⏰ Когда мне</div>
     
-    <div class="input-group">
-        <div><label>Рейка (см):</label><input type="number" id="slat_len" value="272"></div>
-        <div><label>В пачке (шт):</label><input type="number" id="pack_size" value="26"></div>
-        <div><label>Диск (мм):</label><input type="number" id="blade" value="3"></div>
+    <div class="mode-selector">
+        <button class="mode-btn active" onclick="setMode('wake')">Проснуться</button>
+        <button class="mode-btn" onclick="setMode('sleep')">Лечь спать</button>
     </div>
     
-    <button onclick="run()">🪚 РАССЧИТАТЬ</button>
+    <div class="time-display" id="inputDisplay">
+        <div class="label" id="inputLabel">Я хочу проснуться в</div>
+        <input type="time" id="targetTime" value="07:00" style="font-size: 48px; font-weight: 700; text-align: center; background: transparent; border: none; color: #007aff; padding: 0; margin: 0;">
+    </div>
+    
+    <button onclick="calculate()">Рассчитать</button>
+    
+    <div class="cycle-info">
+        <p>💤 1 цикл сна = 90 минут. Пробуждение между циклами помогает проснуться бодрым.</p>
+    </div>
 </div>
 
 <div class="card" id="results" style="display: none;">
-    <div id="stats_area"></div>
-    <textarea id="text_for_whatsapp" readonly style="width:100%; height:160px; background:#2c2c2e; color:white; margin:15px 0; font-family:monospace;"></textarea>
-    <button onclick="copyText()" style="background:#30d158; color:#000; margin-bottom:15px;">📋 Скопировать для WhatsApp</button>
-    <div id="map_area"></div>
+    <div class="section-title">📋 Рекомендации</div>
+    <div id="resultList"></div>
+    <div class="note" id="noteText"></div>
 </div>
 
 <script>
-let stock = JSON.parse(localStorage.getItem('mdf_stock_v4') || '{}');
-
-function saveStock() {
-    localStorage.setItem('mdf_stock_v4', JSON.stringify(stock));
-    renderStock();
-}
-
-function renderStock() {
-    let items = Object.keys(stock)
-        .filter(k => stock[k] > 0 && parseFloat(k) >= 20)
-        .sort((a,b) => parseFloat(a) - parseFloat(b))
-        .map(k => `${parseFloat(k).toFixed(1)}см ×${stock[k]}`);
-    document.getElementById('stockDisplay').textContent = items.length ? items.join(', ') : 'пусто';
-}
-
-function clearStock() {
-    if (confirm('Очистить весь склад остатков?')) {
-        stock = {};
-        saveStock();
+    let currentMode = 'wake'; // 'wake' или 'sleep'
+    
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+        if (mode === 'wake') {
+            document.querySelector('.mode-btn:first-child').classList.add('active');
+            document.getElementById('inputLabel').textContent = 'Я хочу проснуться в';
+        } else {
+            document.querySelector('.mode-btn:last-child').classList.add('active');
+            document.getElementById('inputLabel').textContent = 'Я ложусь спать в';
+        }
+        document.getElementById('results').style.display = 'none';
     }
-}
-
-function run() {
-    try {
-        let text = document.getElementById('order_input').value.trim();
-        let slatLen = parseFloat(document.getElementById('slat_len').value);
-        let packSize = parseInt(document.getElementById('pack_size').value);
-        let blade = parseFloat(document.getElementById('blade').value) / 10;
-
-        if (!text) return alert("Введите заказ!");
-
-        // Парсинг заказа
-        let demands = {};
-        let regex = /(\d+(?:\.\d+)?)[\sхxX×*](\d+(?:\.\d+)?)[\s\-:=]+(\d+)/g;
-        let match;
-        while ((match = regex.exec(text)) !== null) {
-            let w = parseFloat(match[1]);
-            let h = parseFloat(match[2]);
-            let qty = parseInt(match[3]);
-            demands[w] = (demands[w] || 0) + qty * 2;
-            demands[h] = (demands[h] || 0) + qty * 2;
+    
+    function calculate() {
+        let targetTimeStr = document.getElementById('targetTime').value;
+        let [hours, minutes] = targetTimeStr.split(':').map(Number);
+        
+        let now = new Date();
+        let target = new Date();
+        target.setHours(hours, minutes, 0, 0);
+        
+        // Если время уже прошло сегодня — переносим на завтра
+        if (target <= now) {
+            target.setDate(target.getDate() + 1);
         }
-
-        // Списываем со склада (только ≥20 см)
-        let usedFromStock = {};
-        for (let size in stock) {
-            let sz = parseFloat(size);
-            if (sz >= 20 && demands[sz] > 0) {
-                let take = Math.min(demands[sz], stock[size]);
-                demands[sz] -= take;
-                stock[size] -= take;
-                if (stock[size] <= 0) delete stock[size];
-                usedFromStock[sz] = (usedFromStock[sz] || 0) + take;
+        
+        let cycleMinutes = 90;
+        let fallAsleepTime = 15; // 15 минут на засыпание
+        
+        let results = [];
+        
+        if (currentMode === 'wake') {
+            // Режим: хочу проснуться в X — показываю когда лечь
+            for (let cycles = 3; cycles <= 6; cycles++) {
+                let sleepMinutes = cycles * cycleMinutes + fallAsleepTime;
+                let bedTime = new Date(target.getTime() - sleepMinutes * 60000);
+                results.push({
+                    cycles: cycles,
+                    time: bedTime
+                });
             }
+            document.getElementById('noteText').innerHTML = '⭐ Ложись в одно из этих времён, чтобы проснуться между циклами сна.';
+        } else {
+            // Режим: ложусь в X — показываю когда проснусь
+            let bedTime = target;
+            for (let cycles = 3; cycles <= 6; cycles++) {
+                let sleepMinutes = cycles * cycleMinutes + fallAsleepTime;
+                let wakeTime = new Date(bedTime.getTime() + sleepMinutes * 60000);
+                results.push({
+                    cycles: cycles,
+                    time: wakeTime
+                });
+            }
+            document.getElementById('noteText').innerHTML = '⭐ Проснись в одно из этих времён, чтобы выспаться.';
         }
-
-        let lengths = Object.keys(demands).map(Number).filter(n => demands[n] > 0).sort((a,b) => b-a);
-
-        // Генерация паттернов + расчёт
-        let patterns = [];
-        let cur = new Array(lengths.length).fill(0);
-        function gen(idx, used) {
-            if (idx === lengths.length) {
-                if (used > 0) patterns.push([...cur]);
-                return;
-            }
-            let len = lengths[idx];
-            let max = Math.floor((slatLen - used) / (len + blade));
-            for (let i = max; i >= 0; i--) {
-                cur[idx] = i;
-                gen(idx + 1, used + i * (len + blade));
-            }
+        
+        let html = '<div class="result-list">';
+        for (let r of results) {
+            let hoursTime = r.time.getHours().toString().padStart(2, '0');
+            let minutesTime = r.time.getMinutes().toString().padStart(2, '0');
+            html += `
+                <div class="result-item">
+                    <span class="cycles">${r.cycles} цикла сна (${r.cycles * 90} мин)</span>
+                    <span class="time">${hoursTime}:${minutesTime}</span>
+                </div>
+            `;
         }
-        gen(0, 0);
-
-        let remaining = {...demands};
-        let plan = [];
-
-        while (Object.values(remaining).some(v => v > 0)) {
-            let best = null, bestScore = -Infinity;
-            for (let p of patterns) {
-                let score = 0, usedLen = 0, hits = false;
-                for (let i = 0; i < lengths.length; i++) {
-                    let cnt = p[i];
-                    if (cnt === 0) continue;
-                    let len = lengths[i];
-                    usedLen += cnt * (len + blade);
-                    if (remaining[len] > 0) {
-                        score += Math.min(cnt, remaining[len]) * len;
-                        hits = true;
-                    }
-                }
-                if (!hits) continue;
-                let rest = slatLen - usedLen;
-                score -= rest * 1.2;
-                if (score > bestScore) {
-                    bestScore = score;
-                    best = p;
-                }
-            }
-            if (!best) break;
-
-            let steps = 999999;
-            for (let i = 0; i < lengths.length; i++) {
-                if (best[i] > 0 && remaining[lengths[i]] > 0) {
-                    steps = Math.min(steps, Math.ceil(remaining[lengths[i]] / best[i]));
-                }
-            }
-            if (steps === 999999) steps = 1;
-
-            for (let i = 0; i < lengths.length; i++) {
-                remaining[lengths[i]] -= best[i] * steps;
-            }
-            plan.push({pattern: best, count: steps});
-        }
-
-        // Сохраняем остатки ≥20 см
-        for (let p of plan) {
-            let used = 0;
-            for (let i = 0; i < lengths.length; i++) {
-                used += p.pattern[i] * (lengths[i] + blade);
-            }
-            let rest = slatLen - used;
-            if (rest >= 20) {
-                let key = rest.toFixed(1);
-                stock[key] = (stock[key] || 0) + p.count;
-            }
-        }
-        saveStock();
-
-        // Красивый вывод
-        let total = plan.reduce((sum, p) => sum + p.count, 0);
-        let packs = Math.floor(total / packSize);
-        let loose = total % packSize;
-
-        let statsHTML = `
-            <div class="stat-box">
-                <h3>Всего реек: ${total} шт</h3>
-                <p>${packs} пачек + ${loose} шт</p>
-            </div>
-        `;
-
-        let waText = `📦 ЗАКАЗ В РАСПИЛ\nВсего реек: ${total} шт (${packs} пач. + ${loose} шт.)\n\n🛠 КАРТА РАСПИЛА:\n`;
-        let mapHTML = '';
-
-        plan.forEach((item, idx) => {
-            let pCount = Math.floor(item.count / packSize);
-            let lCount = item.count % packSize;
-            let countTxt = pCount > 0 ? `${pCount} пач.` + (lCount > 0 ? ` + ${lCount} шт` : '') : `${lCount} шт`;
-
-            let parts = [];
-            let used = 0;
-            let visual = '<div class="visual-slat">';
-            for (let i = 0; i < lengths.length; i++) {
-                for (let c = 0; c < item.pattern[i]; c++) {
-                    visual += `<div class="slat-part color-normal" style="flex-grow:${lengths[i]}">${lengths[i]}</div>`;
-                    used += lengths[i] + blade;
-                    parts.push(lengths[i]);
-                }
-            }
-            let rest = slatLen - used;
-            if (rest > 0.1) visual += `<div class="slat-part color-waste" style="flex-grow:${rest}">${rest.toFixed(1)}</div>`;
-            visual += '</div>';
-
-            waText += `${idx+1}. ${countTxt} — ${parts.join(' + ')}${rest > 0.1 ? ` + отход ${rest.toFixed(1)}` : ''}\n`;
-            mapHTML += `<div class="card"><strong>Рез №${idx+1}</strong> — ${countTxt}<br>${visual}</div>`;
-        });
-
-        document.getElementById('stats_area').innerHTML = statsHTML;
-        document.getElementById('text_for_whatsapp').value = waText;
-        document.getElementById('map_area').innerHTML = mapHTML;
+        html += '</div>';
+        
+        document.getElementById('resultList').innerHTML = html;
         document.getElementById('results').style.display = 'block';
-
-    } catch(e) {
-        alert("Ошибка: " + e.message);
+        document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
     }
-}
-
-function copyText() {
-    let ta = document.getElementById('text_for_whatsapp');
-    ta.select();
-    document.execCommand('copy');
-    alert('✅ Текст скопирован для WhatsApp!');
-}
-
-renderStock();
+    
+    // Установка текущего времени по умолчанию
+    let defaultTime = new Date();
+    defaultTime.setHours(7, 0, 0, 0);
+    document.getElementById('targetTime').value = '07:00';
 </script>
 </body>
 </html>
